@@ -1,0 +1,70 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!78 &1
+TagManager:
+  serializedVersion: 2
+  tags:
+  - rope2D
+  - tack
+  - Reflect
+  - particles
+  - Head
+  - Gimick
+  layers:
+  - Default
+  - TransparentFX
+  - Ignore Raycast
+  - 
+  - Water
+  - UI
+  - StageWall
+  - Ground
+  - Avoid
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  m_SortingLayers:
+  - name: BackGround
+    uniqueID: 3670474753
+    locked: 0
+  - name: Stage
+    uniqueID: 1346362107
+    locked: 0
+  - name: Gimick
+    uniqueID: 2935674845
+    locked: 0
+  - name: Default
+    uniqueID: 0
+    locked: 0
+  - name: Chara
+    uniqueID: 3771627347
+    locked: 0
+  - name: Effect
+    uniqueID: 4050097413
+    locked: 0
+  - name: Lighting
+    uniqueID: 429611287
+    locked: 0
+  - name: UI
+    uniqueID: 3505669671
+    locked: 0
