@@ -370,7 +370,7 @@ public class CharacterController : SaveMono
             {
                 if (data.type == _effectData[i].type)
                 {
-                    Debug.Log($"‚ dsasdasdwewer{data.type}{_effectData[i].type}{_effectData.Count}");
+                 //   Debug.Log($"‚ dsasdasdwewer{data.type}{_effectData[i].type}{_effectData.Count}");
                     return;
                 }
             }
@@ -675,7 +675,7 @@ public class CharacterController : SaveMono
 
 //            rb.velocity = Vector2.zero;
   //          rb.angularVelocity = 0;
-            Debug.Log(direction);
+
             // ”½ŽË‚ÌƒxƒNƒgƒ‹‚É—Í‚ð‚©‚¯‚é
             rb.AddForce(direction * reflectForce, ForceMode2D.Impulse);
         }

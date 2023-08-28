@@ -14,10 +14,7 @@ public class Parallax : MonoBehaviour
 
     Vector3 posi;
 
-    /// <summary>
-    /// ¡‘€ì‚µ‚Ä‚é‚Ì‚ªq‹Ÿ‚©‚Ç‚¤‚©
-    /// </summary>
-    bool isChild = true;
+
 
     Transform controller;
     Transform nowMain;

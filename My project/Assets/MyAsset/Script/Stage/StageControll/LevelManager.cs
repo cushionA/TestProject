@@ -41,20 +41,20 @@ public class LevelManager : MonoBehaviour,SaveInterface
     
 
     [Serializable]
-    public class NextSceneName : SerializableDictionary<Vector2Int, string>
+    public class NextSceneName : SerializableDictionary<Vector2Int, int>
     {
         [SerializeField]
         private List<Vector2Int> keys;
 
         [SerializeField]
-        private List<string> values;
+        private List<int> values;
 
         protected override List<Vector2Int> GetKeys()
         {
             return keys;
         }
 
-        protected override List<string> GetValues()
+        protected override List<int> GetValues()
         {
             return values;
         }
@@ -64,7 +64,7 @@ public class LevelManager : MonoBehaviour,SaveInterface
             this.keys = keys;
         }
 
-        protected override void SetValues(List<string> values)
+        protected override void SetValues(List<int> values)
         {
             this.values = values;
         }
@@ -100,7 +100,7 @@ public class LevelManager : MonoBehaviour,SaveInterface
     AsyncOperation container;
 
 
-    AsyncOperationHandle<SceneInstance> containerA;
+ //   AsyncOperationHandle<SceneInstance> containerA;
 
     [SerializeField]
     [Header("Addressablesを使用してシーン管理をするか")]
@@ -125,6 +125,10 @@ public class LevelManager : MonoBehaviour,SaveInterface
     [Header("マップデータの格納")]
     LevelData[] dataList;
 
+    /// <summary>
+    /// ロード時間はかるよ
+    /// </summary>
+    float timeChecek;
 
     // Start is called before the first frame update
     void Awake()
@@ -174,8 +178,10 @@ public class LevelManager : MonoBehaviour,SaveInterface
             else
             {
                 //activateOnLoad（初期値true）をFalseにすることでActivateメソッド呼ばれるまでは実体化しない。
-                containerA = Addressables.LoadSceneAsync(nowData.mapName, LoadSceneMode.Additive, activateOnLoad : false);
+             //   containerA = Addressables.LoadSceneAsync(nowData.mapName, LoadSceneMode.Additive, activateOnLoad : false);
                 //containerA.Result.ActivateAsync
+
+               
             }
 
         }
@@ -190,20 +196,21 @@ public class LevelManager : MonoBehaviour,SaveInterface
     /// </summary>
     public void LoadLevel()
     {
+        string name = dataList[nameIndex[nowPointer]].mapName;
         //すでにロードされていないならロード
-        if (SceneManager.GetSceneByName(nameIndex[nowPointer]).IsValid() == false)
+        if (SceneManager.GetSceneByName(name).IsValid() == false)
         {
             if (!isAddressable)
             {
                 //ロードするシーン名と同じであるため、gameobject名を使ってシーンをロードする。
-                SceneManager.LoadSceneAsync(nameIndex[nowPointer], LoadSceneMode.Additive);
+                SceneManager.LoadSceneAsync(name, LoadSceneMode.Additive);
                 //We set it to true to avoid loading the scene twice
 
             }
             else
             {
                 //ロードするシーン名と同じであるため、gameobject名を使ってシーンをロードする。
-                Addressables.LoadSceneAsync(nameIndex[nowPointer], LoadSceneMode.Additive);
+                Addressables.LoadSceneAsync(name, LoadSceneMode.Additive);
                 //We set it to true to avoid loading the scene twice
             }
 
@@ -219,6 +226,8 @@ public class LevelManager : MonoBehaviour,SaveInterface
         if (!isAddressable)
         {
             SceneManager.UnloadSceneAsync(nameIndex[nowPointer]);
+            //使ってないアセットアンロード
+            Resources.UnloadUnusedAssets();
         }
     }
 
@@ -251,7 +260,8 @@ public class LevelManager : MonoBehaviour,SaveInterface
         }
         else
         {
-            await containerA.Result.ActivateAsync();
+          //  Debug.Log($"{containerA.DebugName}");
+         //   await containerA.Result.ActivateAsync();
         }
         //ここでセグメントの有効化まで
 
@@ -265,12 +275,13 @@ public class LevelManager : MonoBehaviour,SaveInterface
     {
         if (!isAddressable)
         {
-            return container.progress / 2;
+            return container.progress + 0.1f / 2;
 
         }
         else
         {
-            return containerA.PercentComplete / 2;
+            return container.progress + 0.1f / 2;
+            // return containerA.PercentComplete + 0.1f / 2;
         }
     }
 
@@ -306,7 +317,7 @@ public class LevelManager : MonoBehaviour,SaveInterface
        nowPointer = ES3.Load<Vector2Int>("SegmentImfo");
             nowData = dataList[nowPointer.x];
 
-       SetData(ES3.Load<LevelData>("MapImfo"));
+     //  SetData(ES3.Load<LevelData>("MapImfo"));
     }
 
     /// <summary>
@@ -354,7 +365,7 @@ public class LevelManager : MonoBehaviour,SaveInterface
     {
         if (!isAddressable)
         {
-            Debug.Log($"{container ==null}");
+
             //シーンがロードされるまで待つ
             await UniTask.WaitUntil(() => container.isDone);
             container = null;
@@ -362,8 +373,11 @@ public class LevelManager : MonoBehaviour,SaveInterface
         else
         {
             //シーンがロードされるまで待つ
-            await UniTask.WaitUntil(() => containerA.IsDone);
+          //  await UniTask.WaitUntil(() => containerA.IsDone);
         }
+
+        //使ってないアセットアンロード
+        await Resources.UnloadUnusedAssets();
 
         await ScoreManager.instance.gameObject.GetComponent<SaveManager>().LoadAsync();
 
@@ -383,6 +397,7 @@ public class LevelManager : MonoBehaviour,SaveInterface
     /// <param name="ID"></param>
     public void ObjectBreak(int ID)
     {
+       // Debug.Log($"毎愛ディー{ID}");
         nowData.disenableObjects[ID] = true;
     }
 
@@ -396,7 +411,15 @@ public class LevelManager : MonoBehaviour,SaveInterface
         return nowData.disenableObjects[ID];
     }
 
+    public void TimeStart()
+    {
+        timeChecek = Time.unscaledTime;
+    }
 
+    public float TimeEnd()
+    {
+        return Time.unscaledTime - timeChecek;
+    }
     
 
 

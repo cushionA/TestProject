@@ -144,6 +144,7 @@ public class EventObject : MonoBehaviour
     {
         if (myEvent._contactBreake)
         {
+            Debug.Log("‚“‚“‚„");
             LevelManager.instance.ObjectBreak(myId);
             Destroy(this.gameObject);
         }

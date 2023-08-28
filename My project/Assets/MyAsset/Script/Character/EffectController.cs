@@ -307,7 +307,7 @@ public class EffectController : MonoBehaviour
                 //フロートか落下以外
                 if (number == 1)
                 {
-                    Debug.Log($"あああ{state}");
+                  //  Debug.Log($"あああ{state}");
                     nowState.ef = MySpawn(Particles[StateSound[number]], StateEffect).transform;
                     //音だけ
                     FollowSound(StateSound[number], transform);

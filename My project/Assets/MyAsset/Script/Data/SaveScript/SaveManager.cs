@@ -103,7 +103,6 @@ public class SaveManager : MonoBehaviour
         //からのロード
         bool end = false;
 
-        Debug.Log("df");
 
         end = Load();
 
@@ -118,8 +117,10 @@ public class SaveManager : MonoBehaviour
     {
         bool end = false;
 
-        Debug.Log("df");
+        float s;
+        Debug.Log($"dfセーブ中");
 
+        s = Time.unscaledTime;
         end = Save();
         
         await UniTask.WaitUntil(() => end == true);
@@ -128,7 +129,7 @@ public class SaveManager : MonoBehaviour
 
         //からのセーブ
         //Save();
-        Debug.Log("ss");
+        Debug.Log($"ssセーブ完了{Time.unscaledTime - s}");
     }
 
 }
