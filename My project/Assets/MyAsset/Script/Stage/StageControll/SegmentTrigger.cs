@@ -1,6 +1,7 @@
 using Cysharp.Threading.Tasks;
 using System.Collections;
 using System.Collections.Generic;
+using System.Reflection;
 using System.Threading;
 using Unity.Entities;
 using UnityEngine;
@@ -12,9 +13,25 @@ using UnityEngine;
 /// こいつはレベルの真ん中と思しき場所に一つずつ設置する
 /// 
 /// ワープでトリガーすり抜ける可能性がある
+/// 
+/// 
+/// 仕様
+/// 
+/// 基本的にトリガーになる座標との距離でセグメントのオンオフを切り替える
+/// 右から左とか上から下とか向きの違いにも対応している
+/// 向きの違いで参考にするのがX座標かｙ座標かを変える
+/// 
+/// アクティブにするのは次のセグメントと前のセグメント
+/// 
 /// </summary>
 public class SegmentTrigger : MonoBehaviour
 {
+
+    //改良提案
+
+    //WaitDistanceメソッドをアクティブ時に呼んで自分との距離が近づくまで待てば当たり判定はいらないのでは
+
+
 
     enum PassDirection
     {
@@ -35,10 +52,10 @@ public class SegmentTrigger : MonoBehaviour
 
     [Header("どこからきてどこへ向かうのか")]
     /// <summary>
-    /// プレイヤーがどこから侵入しどこへ向かうか
+    /// プレイヤーがどの方向から侵入しどこへ向かうか
     /// </summary>
     [SerializeField]
-     PassDirection direction;
+    PassDirection direction;
 
 
     [Header("前のオブジェクト")]
@@ -48,6 +65,15 @@ public class SegmentTrigger : MonoBehaviour
     public GameObject nextSegment;
 
 
+    [Header("接続するマップのセグメント番号")]
+    [SerializeField]
+    int nextMapSegment;
+
+    /// <summary>
+    /// 自分の座標
+    /// LeftTO　みたいな横ルートならX座標入れるし
+    /// 縦ならその逆
+    /// </summary>
     float myPosition;
 
     /// <summary>
@@ -88,30 +114,50 @@ public class SegmentTrigger : MonoBehaviour
     /// セーブデータをロードした後度の面から始めるかなどを決めてくれる
     /// </summary>
     [SerializeField]
-    [Header("何番目のマップの何番目のセグメントか")]
+    [Header("何番目のマップの何番目のセグメントか。0から数える")]
     Vector2Int mapPointer;
 
+
+
+
     /// <summary>
-    /// ロードされて最初であるかどうか
+    /// トリガーになる位置を示すオブジェクト
+    /// それがなければ自分の位置をね
     /// </summary>
-    bool isFirst;
+    [SerializeField]
+    [Header("トリガーになる位置はどこ")]
+    GameObject trigger;
 
     
     // Start is called before the first frame update
-    void Start()
+    void Awake()
     {
-        myPosition = direction == PassDirection.RightToLeft || direction == PassDirection.LeftToRight ? transform.position.x : transform.position.y;
+        //自分の他にトリガーがあるならそれを使おうね
+        Transform position = trigger != null ? trigger.transform : this.transform;
+
+        //自分の座標の上下座標を参考にするか決める。縦侵入ルートならｙ座標、横侵入ルートならｘ座標
+        myPosition = direction == PassDirection.RightToLeft || direction == PassDirection.LeftToRight ? position.position.x : position.position.y;
+
+        //プレイヤーのトランスフォーム
         Player = ScoreManager.instance.Player.transform;
 
     }
 
     /// <summary>
+    /// 
+    /// isFirstフラグを利用し初回起動時の設定。最後のセグメントにいるならマップも呼び出すし
     /// 　このコントローラーでは今いるセグメントと次に行くセグメントだけを有効化してる
     /// 　だから本当に最初にロードした時だけ次のセグメントを起動しなきゃならない
-    ///    なんでマネージャーに
+    ///    だからマネージャーにたのもう(FirstSegmentActive)
     /// </summary>
     private void OnEnable()
     {
+
+
+        if (this.gameObject.name == "SecondMapSegment0")
+        {
+            Debug.Log("しぬ");
+        }
 
         //拠点間のファストトリップとかした時はその拠点、かがり火的なもんにセグメント起動させるか
 
@@ -120,41 +166,46 @@ public class SegmentTrigger : MonoBehaviour
         //初回起動時とそれ以外で分けるか
 
         //初回起動時なら
-        if(LevelManager.instance.isFirst)
+        if (!LevelManager.instance.isFirst)
         {
+            Debug.Log($"hhhh{isReverse}{LevelManager.instance.isFirst}");
             //directionが2以上なら縦になるんだよね
             float judgePosition = (int)direction < 2 ? Player.position.x : Player.position.y;
-        if (direction == PassDirection.LeftToRight || direction == PassDirection.DownToUp)
-        {
-            isReverse = myPosition < judgePosition;
-        }
-        else
-        {
-            isReverse = myPosition > judgePosition;
-        }
-
+            if (direction == PassDirection.LeftToRight || direction == PassDirection.DownToUp)
+            {
+                isReverse = myPosition < judgePosition;
+            }
+            else
+            {
+                isReverse = myPosition > judgePosition;
+            }
+         Debug.Log($"だだだ{isReverse}{LevelManager.instance.isFirst}");
             //初回起動フラグを消す
             LevelManager.instance.isFirst = true;
 
-
+            Debug.Log($"dedede{isReverse}{LevelManager.instance.isFirst}");
             //初回起動フラグ消したうえで、次か前のセグメント起動
 
             if (!FinalSegment)
             {
+
+                Debug.Log($"だggg{isReverse}{LevelManager.instance.isFirst}");
                 if (isReverse)
                 {
-                    prevSegment.SetActive(true);
+                    nextSegment.SetActive(true);
                 }
                 else
                 {
-                    nextSegment.SetActive(true);
+                    prevSegment.SetActive(true);
                 }
             }
             else
             {
+                Debug.Log("あddsdssss");
+
                 //最初のセグメントで、リバースでなく前に進もうとしてるなら次のセグメントを
                 //リバースなら前のマップを
-                if (mapPointer.y == 0)
+                if (prevSegment == null)
                 {
                     if (!isReverse)
                     {
@@ -162,7 +213,7 @@ public class SegmentTrigger : MonoBehaviour
                     }
                     else
                     {
-                        LevelManager.instance.LoadLevel();
+                        LevelManager.instance.LoadLevel(nextMapSegment).Forget();
                     }
                 }
                 //最後のセグメントで、リバースで後ろに進もうとしてるなら前のセグメントを
@@ -175,7 +226,8 @@ public class SegmentTrigger : MonoBehaviour
                     }
                     else
                     {
-                        LevelManager.instance.LoadLevel();
+                        Debug.Log("あいいい");
+                        LevelManager.instance.LoadLevel(nextMapSegment).Forget();
                     }
                 }
             }
@@ -214,7 +266,7 @@ public class SegmentTrigger : MonoBehaviour
 
 
         isPassed = false;
-
+        TriggerStart().Forget();
     }
 
     private void OnDisable()
@@ -230,31 +282,6 @@ public class SegmentTrigger : MonoBehaviour
 
     }
 
-
-
-    /// <summary>
-    /// レベルやセグメントを起動する
-    /// </summary>
-    void SetLevel()
-    {
-        //isReverseなら通過前に前のレベルを呼び、通過後（二回目の通過）に次のレベルを置く
-        //ふつうは一回目通過で次、二回目で前
-
-        //次のを呼ぶかのフラグ
-        bool isNext = !isPassed;
-        //リバースなら反転させる
-        isNext = !isReverse ? isNext : !isNext;
-
-
-        //トリガー通ったら今のセグメントを現在位置にする
-        LevelManager.instance.DataUpdate(mapPointer);
-
-        SegmentActive(isNext);
-
-
-        //通過を反転させる
-        isPassed = !isPassed; 
-    }
 
 
     /// <summary>
@@ -298,67 +325,35 @@ public class SegmentTrigger : MonoBehaviour
     }
 
     /// <summary>
-    /// 制限距離のぶん離れるのを待ってからレベル展開
-    /// 反復横跳び対策
+    /// こいつを最初に呼ぶことで判定できる
+    /// こいつを読んだら次に反復横跳び禁止のDistanceWaitを呼ぶ
     /// </summary>
     /// <returns></returns>
-    async UniTaskVoid WaitDistance()
+    async UniTaskVoid  TriggerStart()
     {
         isWait = true;
         //距離をクリアするまで待って
-        await UniTask.WaitUntil(() => DistanceCheck() ,cancellationToken: cts.Token);
+        await UniTask.WaitUntil(() => TriggerCheck(), cancellationToken: cts.Token);
+
 
         //レベル展開
         SetLevel();
+        WaitDistance().Forget();
     }
 
 
 
-    /// <summary>
-    /// 現在のプレイヤーとの距離が条件満たしてるかを確認するやつ
-    /// 距離はプラスマイナス含めて判断されるので反対側に行かない限り呼ばれない
-    /// </summary>
-    /// <returns></returns>
-    bool DistanceCheck()
-    {
-
-
-        //directionが2以上なら縦になるんだよね
-        float judgePosition = (int)direction < 2 ? Player.position.x : Player.position.y;
 
 
 
-        //反転してるなら色々と変わってくる
-        if (isReverse)
-        {
-            if (direction == PassDirection.LeftToRight || direction == PassDirection.DownToUp)
-            {
-                return myPosition - judgePosition > limitDistance;
-            }
-            else
-            {
-                return myPosition - judgePosition < -limitDistance;
-            }
 
-        }
-        else
-        {
-            if (direction == PassDirection.LeftToRight || direction == PassDirection.DownToUp)
-            {
-                return myPosition - judgePosition < -limitDistance;
-
-            }
-            else
-            {
-                return myPosition - judgePosition > limitDistance;
-            }
-        }
-    }
-
-
+    #region 状況判断関連
 
     /// <summary>
-    /// 出た時トリガー起動方向にプレイヤーがいるかどうか
+    /// トリガー起動方向にプレイヤーがいるかどうか
+    /// つまりは左から右のセグメントだったら、トリガーに接触したとしても土地が―オブジェクトの右にいてくれないとダメ
+    /// 
+    /// 使わないかも
     /// </summary>
     /// <returns></returns>
     bool ExitCheck()
@@ -396,53 +391,230 @@ public class SegmentTrigger : MonoBehaviour
     }
 
     /// <summary>
-    /// セグメントを起動する
+    /// 現在のプレイヤーとの距離が条件満たしてるかを確認するやつ
+    /// 距離はプラスマイナス含めて判断されるので反対側に行かない限り呼ばれない
     /// </summary>
-    /// <param name="isNext"></param>
+    /// <returns></returns>
+    bool DistanceCheck()
+    {
+
+        //現在のセグメントじゃないのなら引っ込んでね
+        if (Mathf.Abs(LevelManager.instance.GetSegment() - mapPointer.y) > 1)
+        {
+            return false;
+        }
+
+        bool isNext = !isPassed;
+
+        isNext = isReverse ? !isNext : isNext;
+
+        //directionが2以上なら縦になるんだよね
+        float judgePosition = (int)direction < 2 ? Player.position.x : Player.position.y;
+
+
+        //100圏内でトリガー起動するから、100圏外で起動するようにしないと連続で壊れる
+
+        //反転してるなら色々と変わってくる
+        if (!isNext)
+        {
+            //逆だから下にいないといけない
+            if (direction == PassDirection.LeftToRight || direction == PassDirection.DownToUp)
+            {
+                return myPosition - judgePosition > limitDistance + 100;
+            }
+            else
+            {
+                return myPosition - judgePosition < -(limitDistance + 100);
+            }
+
+        }
+        else
+        {
+            //上に行ってる時、右に行ってる時y
+            if (direction == PassDirection.LeftToRight || direction == PassDirection.DownToUp)
+            {
+                return myPosition - judgePosition < -(limitDistance + 100);
+
+            }
+            else
+            {
+                return myPosition - judgePosition > limitDistance + 100;
+            }
+        }
+
+    }
+
+    /// <summary>
+    /// 現在のプレイヤーとの距離がトリガー範囲かを確認するやつ
+    /// </summary>
+    /// <returns></returns>
+    bool TriggerCheck()
+    {
+        //番号でロック欠けるのまずいな
+        //この先で番号変形してるわけだし
+        //番号の誤差が一ついないってことにしようか
+      //  Debug.Log($"距離{(myPosition - ((int)direction < 2 ? Player.position.x : Player.position.y)) < 100} 番号{LevelManager.instance.GetSegment() == mapPointer.y}");
+        //現在のセグメントじゃないのなら引っ込んでね
+        if (Mathf.Abs(LevelManager.instance.GetSegment() - mapPointer.y) > 1)
+        {
+            return false;
+        }
+
+        //directionが2以上なら縦になるんだよね
+        float judgePosition = (int)direction < 2 ? Player.position.x : Player.position.y;
+
+
+        if (mapPointer.y == 1)
+        {
+        if (Mathf.Abs(myPosition - judgePosition) < 100)
+        {
+            Debug.Log($"距離到達{mapPointer.y}");
+        }
+        }
+
+
+
+        //距離がちゃんとトリガー範囲内なら
+        return Mathf.Abs(myPosition - judgePosition) < 100;
+    }
+
+
+
+
+    //思ったんだがこのWaitDistanceをセグメントがアクティブにンなった瞬間呼んでやれば当たり判定ではなく距離チェックできるのでは
+
+
+    /// <summary>
+    /// 制限距離のぶん離れるのを待ってからレベル展開
+    /// 反復横跳び対策
+    /// 
+    /// トリガーを通った後、ある一定距離さらに進まないと起動しない
+    /// </summary>
+    /// <returns></returns>
+    async UniTaskVoid WaitDistance()
+    {
+        isWait = true;
+        //距離をクリアするまで待って
+        await UniTask.WaitUntil(() => DistanceCheck(), cancellationToken: cts.Token);
+        if (mapPointer.y == 1)
+        {
+        Debug.Log($"dis距離到達{mapPointer.y}");
+        }
+
+
+        //レベル展開
+        SetLevel();
+        TriggerStart().Forget();
+    }
+
+
+
+
+    #endregion
+
+
+
+    #region マップ、セグメント起動関連
+
+
+    /// <summary>
+    /// レベルやセグメントを起動する
+    /// そしてフラグも管理し、レべマネにも現在のマップの番号を送信する
+    /// 番号は現在のマップで、通過したトリガーのセグメント番号を採用
+    /// 具体的な判断（マップ起動化セグメントかなど）はSegmentActive（）に委託
+    /// </summary>
+    void SetLevel()
+    {
+        //isReverseなら通過前に前のレベルを呼び、通過後（二回目の通過）に次のレベルを置く
+        //ふつうは一回目通過で次、二回目で前
+
+        //次のを呼ぶかのフラグ
+        bool isNext = !isPassed;
+        //リバースなら反転させる
+        isNext = !isReverse ? isNext : !isNext;
+
+        if (mapPointer.y == 1)
+        {
+            Debug.Log($"逆？{isReverse}通過済み？{isPassed}");
+        }
+        //トリガー通ったら今のセグメントを現在位置にする
+        LevelManager.instance.DataUpdate(mapPointer);
+
+        SegmentActive(isNext);
+
+
+        //通過を反転させる
+        isPassed = !isPassed;
+    }
+
+
+
+
+    /// <summary>
+    /// 移動時に次に向かうセグメントを起動する
+    /// 最後のセグメントなら次のマップを呼び出す
+    /// 
+    /// マップ呼び出した後はセグメントを有効化しない
+    /// 呼び出したマップのセグメントを有効化する役目は通路に持たせてもいいかも
+    /// あと通路には見えない壁を置いておいて、マップのロードが終わったら消すようにしてもいいかも
+    /// </summary>
+    /// <param name="isNext">IsNextは次の場所に行こうとしてるか前にもどるか</param>
     void SegmentActive(bool isNext)
     {
 
+        //今回の処理でアクティブにすべきセグメントがあるかどうか
+        //前のマップ消したりした場合は次に向かうセグメントをつけてあげないとね
+        //逆にマップ呼び出したりしたらセグメントを有効化する意味はあらず
         bool notActive = false;
 
+
+        //最後のセグメントでは次のマップ呼んだりする
         if (FinalSegment)
         {
 
+            //ここで最後のセグメントから前に行こうとしてるか次に行こうとしてるかを判断
+            //マップを消すべきか呼ぶべきかを判断するの
             if (isNext)
             {
                 //最初のセグメントで、前に進もうとしてるなら前のレベルを消す
-                if (mapPointer.y == 0)
+                //前のセグメントがないなら最初なんだよね
+                if (prevSegment == null)
                 {
                     LevelManager.instance.UnLoadLevel();
                 }
 
-                //最後のセグメントで次に行こうとするなら次のマップを
+                //最後のセグメントで次に行こうとするなら次のマップを呼び出す
                 else
                 {
                     notActive = true;
-                    LevelManager.instance.LoadLevel();
+                    LevelManager.instance.LoadLevel(nextMapSegment).Forget();
                 }
             }
             else
             {
-                //最後のセグメントで、後ろに進もうとしてるなら次のレベルを消す
-                if (mapPointer.y == 0)
+                //最後のセグメントで、前に戻ろうとしてるなら次のレベルを消す
+                //次がないなら最初なんだ
+                if (nextSegment == null)
                 {
                     LevelManager.instance.UnLoadLevel();
                 }
                 else
                 {
-                    LevelManager.instance.LoadLevel();
+                    LevelManager.instance.LoadLevel(nextMapSegment).Forget();
                     notActive = true;
                 }
             }
         }
 
+        //有効化すべきセグメントがあるなら
         if(!notActive)
         {
             if (isNext)
             {
-                
-                nextSegment.SetActive(true);
+                if (nextSegment != null)
+                {
+                    nextSegment.SetActive(true);
+                }
                 if (prevSegment != null && prevSegment.activeSelf)
                 {
                     prevSegment.SetActive(false);
@@ -451,7 +623,10 @@ public class SegmentTrigger : MonoBehaviour
             }
             else
             {
-                prevSegment.SetActive(true);
+                if (prevSegment != null)
+                {
+                    prevSegment.SetActive(true);
+                }
                 if (nextSegment != null && nextSegment.activeSelf)
                 {
                     nextSegment.SetActive(false);
@@ -460,5 +635,8 @@ public class SegmentTrigger : MonoBehaviour
 
         }
     }
+
+    #endregion
+
 
 }

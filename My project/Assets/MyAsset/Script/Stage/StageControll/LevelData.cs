@@ -26,10 +26,6 @@ public class LevelData : ScriptableObject
 
 
 
-    /// <summary>
-    /// セグメントの名前
-    /// </summary>
-    public string[] segmentName;
 
 
 

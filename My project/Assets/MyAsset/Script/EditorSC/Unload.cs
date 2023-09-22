@@ -32,6 +32,29 @@ public class Unload : MonoBehaviour
         }
     }
 
+
+    [ContextMenu("scene内のイベントオブジェクトにID付与")]
+    public void SetID()
+    {
+        EventObject[] objs = FindObjectsOfType<EventObject>();
+
+        int count = objs.Length;
+
+        int i = 0;
+
+        //現在読み込まれているシーン数だけループ
+        foreach(EventObject obj in objs)
+        {
+            if (obj.BreakableCheck())
+            {
+                obj.SetID(i);
+                i++;
+            }
+        }
+
+        Debug.Log($"{i}個の破壊可能オブジェクト");
+    }
+
 #endif
 
 }

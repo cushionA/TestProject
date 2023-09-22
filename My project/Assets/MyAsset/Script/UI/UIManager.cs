@@ -97,8 +97,9 @@ public class UIManager : MonoBehaviour
         await _save.SaveAsync();
 
         SceneManager.UnloadSceneAsync(LevelManager.instance.nowData.mapName);
-        Resources.UnloadUnusedAssets();
+     //   Resources.UnloadUnusedAssets();
         bl_SceneLoaderManager.LoadScene("Title");
+        LevelManager.instance.NewInstance();
     }
 
 

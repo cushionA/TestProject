@@ -91,10 +91,11 @@ public class EventObject : MonoBehaviour
 
     private void Start()
     {
+     //   Debug.Log($"{myId}だ");
         //すでに存在しないなら壊す
         if (myEvent._contactBreake && LevelManager.instance.BreakCheck(myId))
         {
-            GameObject.Destroy(this);
+            Destroy(this.gameObject);
         }
     }
 
@@ -118,23 +119,15 @@ public class EventObject : MonoBehaviour
 
     public EventData EventStart()
     {
-        if (myEvent._contactBreake)
-        {
-            BreakObj();
-        }
-        else
-        {
-            CollideEffect();
-            isDisenable = true;
 
-        }
-
+        CollideEffect();
         return myEvent;
     }
 
 
     void BreakObj()
-    {
+    { 
+        LevelManager.instance.ObjectBreak(myId);
         Destroy(this.gameObject);
 
     }
@@ -144,9 +137,7 @@ public class EventObject : MonoBehaviour
     {
         if (myEvent._contactBreake)
         {
-            Debug.Log("ｓｓｄ");
-            LevelManager.instance.ObjectBreak(myId);
-            Destroy(this.gameObject);
+            BreakObj();
         }
         else
         {
@@ -165,5 +156,22 @@ public class EventObject : MonoBehaviour
         }
     }
 
+
+    /// <summary>
+    /// エディター上でIDを設定するやつ
+    /// </summary>
+    public void SetID(int ID)
+    {
+        myId = ID;
+    }
+
+    /// <summary>
+    /// 真なら壊れるやつ
+    /// </summary>
+    /// <returns></returns>
+    public bool BreakableCheck()
+    {
+        return myEvent._contactBreake;
+    }
 
 }

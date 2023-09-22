@@ -10,18 +10,19 @@ TagManager:
   - particles
   - Head
   - Gimick
+  - stage
   layers:
   - Default
   - TransparentFX
   - Ignore Raycast
-  - 
+  - gimick
   - Water
   - UI
   - StageWall
   - Ground
   - Avoid
-  - 
-  - 
+  - Attack
+  - Item
   - 
   - 
   - 

@@ -13,12 +13,12 @@ GameObject:
   - component: {fileID: 8715441545711183798}
   - component: {fileID: 3876980466027800786}
   - component: {fileID: 2451415765120227283}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: PowerUp
   m_TagString: Gimick
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
+  m_StaticEditorFlags: 2147483647
   m_IsActive: 1
 --- !u!4 &1298314467052583317
 Transform:
@@ -100,6 +100,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   respornTime: 0
+  myId: 0
   myEvent:
     type: 7
     effectTime: 5

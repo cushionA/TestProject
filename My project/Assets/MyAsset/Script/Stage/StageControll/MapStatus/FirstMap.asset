@@ -12,9 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7a5e51b19e2d24248a7843bdc2d6bf1f, type: 3}
   m_Name: FirstMap
   m_EditorClassIdentifier: 
-  mapName: TestMap
+  mapName: FirstMap
   isChanged: 0
-  segmentName:
-  - Segment0
-  disenableObjects: 000000000000000000
+  disenableObjects: 00000000000000
   disenableEnemy: 

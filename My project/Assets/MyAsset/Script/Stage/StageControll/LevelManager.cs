@@ -3,6 +3,7 @@ using RenownedGames.Apex.Serialization.Collections.Generic;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.AddressableAssets;
 using UnityEngine.ResourceManagement.AsyncOperations;
@@ -134,6 +135,7 @@ public class LevelManager : MonoBehaviour,SaveInterface
     void Awake()
     {
 
+
         if (instance == null)
         {
             instance = this;
@@ -143,11 +145,15 @@ public class LevelManager : MonoBehaviour,SaveInterface
         {
             Destroy(this.gameObject);
         }
+
         DontDestroyOnLoad(this.gameObject);
-        Load();
+        UnityEngine.Rendering.DebugManager.instance.enableRuntimeUI = false;
     }
 
-
+    private void Update()
+    {
+        Debug.Log($"マップ番号{nowPointer.y}です");
+    }
 
     /// <summary>
     /// 最初のレベルをロードする
@@ -156,6 +162,9 @@ public class LevelManager : MonoBehaviour,SaveInterface
     /// </summary>
     public void FirstLevelLoad()
     {
+
+        Load();
+
         //すでにロードされていないならロード
         //この処理はAddressablesも共通
         if (SceneManager.GetSceneByName(nowData.mapName).IsValid() == false)
@@ -194,29 +203,50 @@ public class LevelManager : MonoBehaviour,SaveInterface
     /// 通路にそういう機能を持たせるか、
     /// ゲームオブジェクト二つ登録してさ
     /// </summary>
-    public void LoadLevel()
+    public async UniTaskVoid LoadLevel(int num)
     {
+        //けすべきマップないならやめとく
+        if (nameIndex.ContainsKey(nowPointer) == false || dataList[nameIndex[nowPointer]] == null)
+        {
+            return;
+        }
+
+
         string name = dataList[nameIndex[nowPointer]].mapName;
         //すでにロードされていないならロード
         if (SceneManager.GetSceneByName(name).IsValid() == false)
         {
+
+            //ここでAwaitしてマップのロード待つ間見えない壁出したりしてもいいよ
+          
             if (!isAddressable)
             {
                 //ロードするシーン名と同じであるため、gameobject名を使ってシーンをロードする。
-                SceneManager.LoadSceneAsync(name, LoadSceneMode.Additive);
+               await SceneManager.LoadSceneAsync(name, LoadSceneMode.Additive);
                 //We set it to true to avoid loading the scene twice
 
             }
             else
             {
                 //ロードするシーン名と同じであるため、gameobject名を使ってシーンをロードする。
-                Addressables.LoadSceneAsync(name, LoadSceneMode.Additive);
+                await Addressables.LoadSceneAsync(name, LoadSceneMode.Additive);
                 //We set it to true to avoid loading the scene twice
             }
 
+            await UniTask.Delay(TimeSpan.FromSeconds(10));
+
+            Debug.Log("いくぞーーーー");
+
+            //セグメント起動
+            SegmentActive(name,num);
 
         }
     }
+
+
+
+
+
 
     /// <summary>
     /// レベルをアンロードする、あとロード中ならロード中止
@@ -225,6 +255,12 @@ public class LevelManager : MonoBehaviour,SaveInterface
     {
         if (!isAddressable)
         {
+            //けすべきマップないならやめとく
+            if (nameIndex.ContainsKey(nowPointer) == false || dataList[nameIndex[nowPointer]] == null)
+            {
+                return;
+            }
+
             SceneManager.UnloadSceneAsync(nameIndex[nowPointer]);
             //使ってないアセットアンロード
             Resources.UnloadUnusedAssets();
@@ -242,9 +278,20 @@ public class LevelManager : MonoBehaviour,SaveInterface
     /// <param name="isFinal"></param>
     public void DataUpdate(Vector2Int pointer)
     {
+
+        Debug.Log($"更新{pointer}");
         nowPointer.x = pointer.x;
         nowPointer.y = pointer.y;
 
+    }
+
+    /// <summary>
+    /// 現在どのセグメントにいるかを教える
+    /// </summary>
+    /// <returns></returns>
+    public int GetSegment()
+    {
+        return nowPointer.y;
     }
 
 
@@ -317,7 +364,7 @@ public class LevelManager : MonoBehaviour,SaveInterface
        nowPointer = ES3.Load<Vector2Int>("SegmentImfo");
             nowData = dataList[nowPointer.x];
 
-     //  SetData(ES3.Load<LevelData>("MapImfo"));
+     SetData(ES3.Load<LevelData>("MapImfo"));
     }
 
     /// <summary>
@@ -382,14 +429,40 @@ public class LevelManager : MonoBehaviour,SaveInterface
         await ScoreManager.instance.gameObject.GetComponent<SaveManager>().LoadAsync();
 
         //ここでセーブロード読み込み中…ってテキストを出すことも可能
-       // await _save.LoadAsync();
+        // await _save.LoadAsync();
 
         //ロードされたらセグメントを有効に
         //マップデータはAwakeですでに用意してある
-        GameObject.Find(nowData.segmentName[nowPointer.y]).SetActive(true);
+        //SegmentNameが必要な理由は別のマップのセグメント0さんとかが起きちゃう可能性あるから
+        //マップ名で良くね
+  //   Debug.Log($"{nowData.mapName}Segment{nowPointer.y}");
+
+
+        //非アクティブなオブジェクトはルートオブジェクトのトランスフォームからたどって探すね
+        GameObject.Find($"{nowData.mapName}SceneRoot").transform.Find($"{nowData.mapName}Segment{nowPointer.y}").gameObject.SetActive(true);
 
 
     }
+
+
+    /// <summary>
+    /// 移動した先、次のマップのセグメントを起動
+    /// </summary>
+    /// <param name="name"></param>
+    /// <param name="num"></param>
+    void SegmentActive(string name, int num)
+    {
+        //    Debug.Log($"マップの{name}Segment{num}");
+
+
+        //非アクティブなオブジェクトはルートオブジェクトのトランスフォームからたどって探すね
+        //       　GameObject.Find($"{name}SceneRoot").transform.Find($"{name}Segment{num}").gameObject.SetActive(true);
+
+        Destroy(GameObject.Find($"{name}SceneRoot").transform.Find($"{name}Segment{num}").gameObject);
+
+       // Debug.Log($"なーーーーーーーーー{obj.activeSelf}");
+    }
+
 
     /// <summary>
     /// オブジェクトが壊れたらその旨を知らせる
@@ -400,6 +473,20 @@ public class LevelManager : MonoBehaviour,SaveInterface
        // Debug.Log($"毎愛ディー{ID}");
         nowData.disenableObjects[ID] = true;
     }
+
+
+    /// <summary>
+    /// 新しいレベルマネージャを生成する
+    /// </summary>
+    public void NewInstance()
+    {
+        Destroy(instance);
+        Resources.UnloadUnusedAssets();
+        this.AddComponent<LevelManager>();
+    }
+
+
+
 
     /// <summary>
     /// そのオブジェクトが壊れてるかどうか知らせる

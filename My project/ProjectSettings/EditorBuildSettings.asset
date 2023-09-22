@@ -15,7 +15,10 @@ EditorBuildSettings:
     path: Assets/MyAsset/test/Test!.unity
     guid: 8af2eebf5c95b7e4e8c815eb3950baa4
   - enabled: 1
-    path: Assets/MyAsset/Script/Stage/StageScene/TestMap.unity
+    path: Assets/MyAsset/Script/Stage/StageScene/FirstMap.unity
     guid: c94d1ce9aa0bd8b469cc90758c4a06af
+  - enabled: 1
+    path: Assets/MyAsset/Script/Stage/StageScene/SecondMap.unity
+    guid: 8a35a7562f1383142aaee1ad0b321712
   m_configObjects:
     com.unity.addressableassets: {fileID: 11400000, guid: 274ff19de600cb247aa27eda38213af7, type: 2}

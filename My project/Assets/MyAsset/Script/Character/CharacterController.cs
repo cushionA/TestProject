@@ -477,7 +477,7 @@ public class CharacterController : SaveMono
                 //‚Ü‚½‚Í¡–³“G‚Åó‘Ô‚í‚é‚¢‚â‚Â‚È‚ç
                 if(Time.time - _effectData[i].timer > _effectData[i].effectTime || _myStatus.invincible && _effectData[i].bad)
                 {
-                    Debug.Log($"wwwdwd{_effectData[i].type}{Time.time - _effectData[i].timer > _effectData[i].effectTime}{_effectData[i].timer}");
+                 //   Debug.Log($"wwwdwd{_effectData[i].type}{Time.time - _effectData[i].timer > _effectData[i].effectTime}{_effectData[i].timer}");
                     ConditionEnd(_effectData[i]);
                     _effectData.Remove(_effectData[i]);
                 }

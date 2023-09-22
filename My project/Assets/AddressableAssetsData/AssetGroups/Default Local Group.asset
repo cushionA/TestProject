@@ -107,6 +107,16 @@ MonoBehaviour:
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 30ecd32621e21da46829b0a216c79c8d
+    m_Address: LevelManager
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 00f1dc5e39a42b04e8b3c018cb483b9b
+    m_Address: Assets/MyAsset/Script/Stage/StageControll/MapStatus/SecondMap.asset
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
   m_ReadOnly: 0
   m_Settings: {fileID: 11400000, guid: 6ea1e76a7f6964649a14e1a9f347aa87, type: 2}
   m_SchemaSet:

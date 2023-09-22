@@ -13,12 +13,12 @@ GameObject:
   - component: {fileID: 9196880509087923085}
   - component: {fileID: 7857681767926520872}
   - component: {fileID: 4029516118891292424}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: Recover
   m_TagString: Gimick
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
+  m_StaticEditorFlags: 2147483647
   m_IsActive: 1
 --- !u!4 &494543039299484084
 Transform:
@@ -33,7 +33,7 @@ Transform:
   m_ConstrainProportionsScale: 1
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 17
+  m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!212 &1195737060862510487
 SpriteRenderer:
@@ -100,6 +100,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   respornTime: 0
+  myId: 0
   myEvent:
     type: 3
     effectTime: 0
