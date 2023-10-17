@@ -4,7 +4,7 @@ using UnityEngine;
 namespace ES3Types
 {
 	[UnityEngine.Scripting.Preserve]
-	[ES3PropertiesAttribute("prevOrNext", "disenableObjects", "disenableEnemy")]
+	[ES3PropertiesAttribute("isChanged", "disenableObjects", "disenableEnemy")]
 	public class ES3UserType_LevelData : ES3ScriptableObjectType
 	{
 		public static ES3Type Instance = null;
@@ -16,7 +16,7 @@ namespace ES3Types
 		{
 			var instance = (LevelData)obj;
 			
-
+			writer.WriteProperty("isChanged", instance.isChanged, ES3Type_bool.Instance);
 			writer.WriteProperty("disenableObjects", instance.disenableObjects, ES3Type_boolArray.Instance);
 			writer.WriteProperty("disenableEnemy", instance.disenableEnemy, ES3Type_boolArray.Instance);
 		}
@@ -29,7 +29,9 @@ namespace ES3Types
 				switch(propertyName)
 				{
 					
-
+					case "isChanged":
+						instance.isChanged = reader.Read<System.Boolean>(ES3Type_bool.Instance);
+						break;
 					case "disenableObjects":
 						instance.disenableObjects = reader.Read<System.Boolean[]>(ES3Type_boolArray.Instance);
 						break;

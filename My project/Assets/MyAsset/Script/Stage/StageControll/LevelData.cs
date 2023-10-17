@@ -25,7 +25,7 @@ public class LevelData : ScriptableObject
     public bool isChanged;
 
 
-
+   // public int segmentNum
 
 
 

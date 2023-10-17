@@ -83,18 +83,23 @@ public class EventObject : MonoBehaviour
     bool isDisenable;
 
     /// <summary>
-    /// 当たり判定消えた時間
+    /// 当たり判定消えた時間d
     /// </summary>
     float disenaTime;
 
-
+    /// <summary>
+    /// 所属してるマップ番号
+    /// </summary>
+    [SerializeField]
+    int mapNum;
 
     private void Start()
     {
      //   Debug.Log($"{myId}だ");
         //すでに存在しないなら壊す
-        if (myEvent._contactBreake && LevelManager.instance.BreakCheck(myId))
+        if (myEvent._contactBreake && LevelManager.instance.BreakCheck(myId,mapNum))
         {
+            Debug.Log("あｍなあああ");
             Destroy(this.gameObject);
         }
     }
@@ -127,7 +132,7 @@ public class EventObject : MonoBehaviour
 
     void BreakObj()
     { 
-        LevelManager.instance.ObjectBreak(myId);
+        LevelManager.instance.ObjectBreak(myId,mapNum);
         Destroy(this.gameObject);
 
     }
@@ -160,10 +165,21 @@ public class EventObject : MonoBehaviour
     /// <summary>
     /// エディター上でIDを設定するやつ
     /// </summary>
-    public void SetID(int ID)
+    public void SetID(int ID,int mapNumber)
     {
         myId = ID;
+        mapNum = mapNumber;
     }
+
+    /// <summary>
+    /// エディター上でIDを設定するやつ
+    /// </summary>
+    public int GetID()
+    {
+        return myId;
+    }
+
+
 
     /// <summary>
     /// 真なら壊れるやつ

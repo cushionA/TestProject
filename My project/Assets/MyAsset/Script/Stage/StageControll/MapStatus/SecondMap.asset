@@ -14,5 +14,5 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   mapName: SecondMap
   isChanged: 0
-  disenableObjects: 00000000000000000000
-  disenableEnemy: 
+  disenableObjects: 000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+  disenableEnemy: 00

@@ -13,6 +13,6 @@ MonoBehaviour:
   m_Name: FirstMap
   m_EditorClassIdentifier: 
   mapName: FirstMap
-  isChanged: 0
-  disenableObjects: 00000000000000
+  isChanged: 1
+  disenableObjects: 00000000000000000000000000000100000000000000000000000100010000
   disenableEnemy: 

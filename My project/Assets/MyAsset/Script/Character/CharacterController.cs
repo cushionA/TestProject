@@ -5,6 +5,9 @@ using System.Linq;
 using Beautify.Universal;
 using System;
 using static Dreamteck.AsyncJobSystem;
+using System.Threading;
+using Unity.Entities.UniversalDelegates;
+using Cysharp.Threading.Tasks;
 
 public class CharacterController : SaveMono
 {
@@ -19,8 +22,21 @@ public class CharacterController : SaveMono
     [SerializeField]
     GameObject SpriteEffect;
 
+    /// <summary>
+    /// タッチが有効な範囲
+    /// </summary>
+    public float touchRange;
+
+    /// <summary>
+    /// タッチ成功になるポイント
+    /// ちょっとよく飛ぶ
+    /// </summary>
+   public  float sweetRange;
 
     #region　内部ステータス
+
+
+
     /// <summary>
     /// 現在の数値
     /// </summary>
@@ -51,7 +67,7 @@ public class CharacterController : SaveMono
     EffectController efCon;
 
     Vector2 velocityCOn;
-
+    Vector2 ground = new Vector2(0,10);
 
     /// <summary>
     /// いまどの状態異常やバフがメインでグラフィックに反映されてるか
@@ -59,6 +75,13 @@ public class CharacterController : SaveMono
     [SerializeField]
     [ES3Serializable]
     GimickCondition _myStatus;
+
+    [SerializeField] private LayerMask groundLayer;
+
+    [SerializeField]
+    float gCheckSpan;
+
+    RaycastHit2D hit;
 
     #endregion
 
@@ -136,6 +159,11 @@ public class CharacterController : SaveMono
     jumpStatus _status;
 
 
+    /// <summary>
+    /// 最後のアニメのせっとできたかな
+    /// </summary>
+    int isTrigger;
+
     void Start()
     {
         rb = GetComponent<Rigidbody2D>();
@@ -147,6 +175,71 @@ public class CharacterController : SaveMono
 
     void Update()
     {
+        //死んでるなら戻れ
+        if (_myStatus.Die)
+        {
+            Debug.Log("あｄｆｇｇ");
+            rb.velocity = Vector2.zero;
+            return;
+        }
+
+        if (ScoreManager.instance.isGoal)
+        {
+            //エフェクト消そう
+            if (_effectData.Any())
+            {
+                int count = _effectData.Count;
+                for (int i = 0;i < count;i++)
+                {
+                    ConditionEnd(_effectData[i]);
+                    _effectData.Remove(_effectData[i]);
+                }
+                _effectData = null;
+            }
+
+            if (isGround)
+            {
+                //トリガーポイントに向かう処理
+                // トリガーポイントというか、X座標ゼロでいいわ
+                //行きついたら最後のアニメを開始
+                //いやアニメいらない、動かしながら回転させる
+                //そして移動オワタら0になるまでまた回転、その後アニメ開始
+                //回転処理はここに、移動処理はFixedに置くか
+                //ゴールでグラウンドでトリガー到達してないなら進むよみたいに
+
+                if (Math.Abs(isTrigger) == 1)
+                {
+                    //回転してアニメ開始　
+
+                    //右に
+                    if(isTrigger > 0)
+                    {
+                        transform.Rotate(0,0,-2);
+                    }
+                    //
+                    else
+                    {
+                        transform.Rotate(0, 0, 2);
+                    }
+
+                    //止まってるなら
+                    if(rb.velocity == Vector2.zero)
+                    {
+                        if(Math.Abs(transform.rotation.z) < 10)
+                        {
+                            transform.rotation = Quaternion.Euler(Vector3.zero);
+                            isTrigger = 2;
+                            efCon.EndAnimStart();
+                        }
+                    }
+                }
+
+
+            }
+
+            //ゴールしたなら止まれ
+            return;
+        }
 
         if(nowAction == CharacterState.none)
         {
@@ -179,10 +272,19 @@ public class CharacterController : SaveMono
         {
 
 
-            Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-            RaycastHit2D hit2d = Physics2D.Raycast((Vector2)ray.origin, (Vector2)ray.direction);
 
-            if(hit2d.transform == null)
+
+            Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+
+            
+            
+            //クリック地点の座標獲得
+            Vector2 _position = Physics2D.Raycast((Vector2)ray.origin, (Vector2)ray.direction).point;
+
+            #region 没処理
+            /*
+            RaycastHit2D hit2d = Physics2D.Raycast((Vector2)ray.origin, (Vector2)ray.direction);
+            if (hit2d.transform == null)
             {
                 return;
             }
@@ -203,33 +305,61 @@ public class CharacterController : SaveMono
                 }
                 
                 rb.AddForce(direction, ForceMode2D.Impulse);
-                return;
+
+            }
+            */
+            #endregion
+
+            //タッチしたとことキャラの距離を
+            float distance = Vector2.Distance(Physics2D.Raycast((Vector2)ray.origin, (Vector2)ray.direction).point,transform.position);
+
+
+           //ｗ Debug.Log($"ああああああ{distance}");
+
+            //範囲超えてるなら失敗
+            if(distance > touchRange)
+            {
+                if (distance > touchRange * 1.5f)
+                {
+                    return;
+                }
+                nowJumpPower = jumpPower * 0.4f;
+                
             }
 
-        }
-        else if (isGround)
-        {
+ 
 
 
-
-
-            horizontal = Input.GetAxisRaw("Horizontal");
-
-            //横移動
-
-            if (horizontal != 0)
+            if (distance <= sweetRange)
             {
-                ChangeAction(CharacterState.walk);
+                nowJumpPower = jumpPower * 1.15f;
+            }
+
+            ChangeAction(CharacterState.jump);
+            rb.velocity = Vector2.zero;
+            JumpCheck();
+            if (nowAngle == 0)
+            {
+                direction.Set(0, nowJumpPower);
             }
             else
             {
-                ChangeAction(CharacterState.idle);
+                nowAngle *= Mathf.Deg2Rad;
+                direction.Set(nowJumpPower * Mathf.Cos(nowAngle), nowJumpPower * Mathf.Sin(nowAngle));
             }
+
+            rb.AddForce(direction, ForceMode2D.Impulse);
+
+
         }
+
 
     }
 
-
+    private void OnEnable()
+    {
+        GroundCheck(true).Forget();
+    }
 
 
 
@@ -238,6 +368,41 @@ public class CharacterController : SaveMono
 
         //  状態変化の時間を監視
         ConditionTimer();
+
+
+        if(ScoreManager.instance.isGoal && isGround)
+        {
+            if(isTrigger > 1)
+            {
+                return;
+            }
+
+            float basePosi = ScoreManager.instance.PlayerPosi.x;
+
+            //誤差１いないなら停止
+            if (Math.Abs(basePosi) < 1)
+            {
+                rb.velocity = Vector2.zero;
+            }
+            else
+            {
+
+                //右にいる時左へ
+                if(basePosi > 0)
+                {
+                    isTrigger = -1;
+                    rb.velocity = Vector2.left * 10;
+                }
+                else
+                {
+                    isTrigger = 1;
+                    rb.velocity = Vector2.right * 10;
+                }
+            }
+
+            return;
+        }
+
 
         //ジャンプ中なら
         if (nowAction == CharacterState.jump)
@@ -254,26 +419,21 @@ public class CharacterController : SaveMono
         }
         else
         {
-            //地面ついてるなら
-            if (isGround && nowAction == CharacterState.walk)
+
+            if (isGround)
             {
-                //移動処理
+                ChangeAction(CharacterState.idle);
+            }
+            else if (rb.velocity.y >= 0 && nowAction != CharacterState.Float)
+            {
+                ChangeAction(CharacterState.Float);
 
             }
-            //ついてないなら落下か浮遊
-            else
+            else if (nowAction != CharacterState.fall && nowAction != CharacterState.Float)
             {
-                if (rb.velocity.y >= 0 && nowAction != CharacterState.Float)
-                {
-                    ChangeAction(CharacterState.Float);
-
-                }
-                else if (nowAction != CharacterState.fall && nowAction != CharacterState.Float)
-                {
-                    ChangeAction(CharacterState.fall);
-                }
-
+                ChangeAction(CharacterState.fall);
             }
+
 
         }
 
@@ -295,9 +455,9 @@ public class CharacterController : SaveMono
     /// <param name="data"></param>
     void GimickAct(EventObject.EventData data, Collider2D collision)
     {
-
+        Debug.Log($"tttttt{data.type}");
         //即時効果
-        if (data.effectTime == 0)
+        if (data.effectTime == 0 || data.type == EventObject.EventType.scoreGet)
         {
             if (data.type == EventObject.EventType.damage)
             {
@@ -309,6 +469,8 @@ public class CharacterController : SaveMono
                     return;
                 }
 
+                //スコアも10へる
+                ScoreManager.instance.ScoreChange(-100);
                 bool isDie = ScoreManager.instance.LifeChange(true);
 
                 StopAction();
@@ -317,6 +479,7 @@ public class CharacterController : SaveMono
 
                 if (isDie)
                 {
+                    ScoreManager.instance.isDie = true;
                     _myStatus.Die = true;
                     efCon.ActionChange(CharacterController.CharacterState.none);
                     efCon.ConditionChange(CharacterCondition.die);
@@ -328,13 +491,15 @@ public class CharacterController : SaveMono
             }
             else if (data.type == EventObject.EventType.recover)
             {
-
+                efCon.PlaySound("Recover", ScoreManager.instance.PlayerPosi);
                 ScoreManager.instance.LifeChange();
                 //回復エフェクト
                 efCon.ConditionChange(CharacterCondition.heal);
             }
+
             else if (data.type == EventObject.EventType.scoreGet)
             {
+                efCon.PlaySound("ScoreUp",ScoreManager.instance.PlayerPosi);
                 ScoreManager.instance.ScoreChange((int)data.effectTime);
             }
             else if (data.type == EventObject.EventType.Random)
@@ -506,7 +671,7 @@ public class CharacterController : SaveMono
             {
                 _myStatus.invincible = false;
                 SpriteEffect.SetActive(false);
-                //無敵の音鳴らす?
+                gameObject.layer = 0;
 
             }
             else if (data.type == EventObject.EventType.boostJump)
@@ -519,6 +684,22 @@ public class CharacterController : SaveMono
 
     }
 
+    public async UniTask DieRecover()
+    {
+
+        if (_effectData.Any())
+        {
+            int count = _effectData.Count;
+            for (int i =0;i<count;i++)
+            {
+                ConditionEnd(_effectData[i]);
+            }
+        }
+        efCon.ConditionChange(CharacterCondition.none);
+        await UniTask.Delay(TimeSpan.FromSeconds(1f));
+        this.gameObject.layer = 0;
+        _myStatus.Die = false;
+    }
 
 
 #endregion
@@ -624,12 +805,12 @@ public class CharacterController : SaveMono
     private void OnTriggerEnter2D(Collider2D collision)
     {
         //地形じゃないならジャンプやめる
-        if (collision.gameObject.tag != "Ground")
-        {
-            nowAngle = angle;
-            nowJumpPower = jumpPower;
-            nowAction = CharacterState.fall;
-        }
+   //     if (collision.gameObject.tag != "stage")
+ //       {
+  //          nowAngle = angle;
+   //         nowJumpPower = jumpPower;
+  //         nowAction = CharacterState.fall;
+  //      }
 
         //バフアイテムは一回触ると消える?
         //消滅設定に従うか
@@ -638,13 +819,22 @@ public class CharacterController : SaveMono
             EventObject.EventData data = collision.gameObject.GetComponent<EventObject>().EventStart();
 
 
-
+            Debug.Log("ｇｇ");
             GimickAct(data,collision);
         }
     }
 
     private void OnCollisionEnter2D(Collision2D collision)
     {
+
+
+        if (ScoreManager.instance.isGoal)
+        {
+            if(collision.gameObject.tag == "stage")
+            {
+                isGround = true;
+            }
+        }
 
         if (collision.gameObject.tag == "Reflect")
         {
@@ -682,6 +872,33 @@ public class CharacterController : SaveMono
     }
 
 
+    async UniTaskVoid GroundCheck(bool isFirst = false)
+    {
+        if (!isFirst)
+        {
+            await UniTask.Delay(TimeSpan.FromSeconds(gCheckSpan),cancellationToken:destroyCancellationToken);
+        }
+
+        if(gameObject.activeSelf == false)
+        {
+            return;
+        }
+
+        isGround = isGrounded();
+        GroundCheck().Forget();
+    }
+
+    /// <summary>
+    /// 接地判定
+    /// </summary>
+    /// <returns></returns>
+    private bool isGrounded()
+    {
+        hit = Physics2D.Raycast(transform.position, Vector2.down, 5, groundLayer);
+      //  if(hit.collider!= null)
+       // Debug.Log($"あたたよ{hit.collider.name}");
+        return hit.collider != null;
+    }
 
     /// <summary>
     /// セーブ機能
@@ -697,9 +914,9 @@ public class CharacterController : SaveMono
         for (int i = 0; i < _effectData.Count; i++)
         {
 
-            //時間超えたら消す
+            //時間超えてるのは消す
             //または今無敵で状態わるいやつなら
-            if (Time.time - _effectData[i].timer > _effectData[i].effectTime || _myStatus.invincible && _effectData[i].bad)
+            if (Time.time - _effectData[i].timer > _effectData[i].effectTime)
             {
              //   Debug.Log($"wwwdwd{_effectData[i].type}{Time.time - _effectData[i].timer > _effectData[i].effectTime}{_effectData[i].timer}");
                 ConditionEnd(_effectData[i]);
@@ -708,17 +925,19 @@ public class CharacterController : SaveMono
             else
             {
                 EventObject.EventData data = _effectData[i];
-                //効果時間変更
+                //効果時間を残り時間に変更
                 data.effectTime -= (Time.time - _effectData[i].timer);
                 _effectData[i] = data;
             }
 
         }
 
+
         ES3.Save("NowCondition", _effectData);
         ES3.Save("NowEffect",_myStatus);
         ES3.Save("PositionImfo", transform.position);
     }
+
 
 
     public override void Load()
@@ -727,6 +946,8 @@ public class CharacterController : SaveMono
      //   ES3.Load("NowEffect");
         transform.position = ES3.Load<Vector3>("PositionImfo");
     }
+
+
 
 
 }

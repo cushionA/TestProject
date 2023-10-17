@@ -1,9 +1,5 @@
 using Cysharp.Threading.Tasks;
-using System.Collections;
-using System.Collections.Generic;
-using System.Reflection;
 using System.Threading;
-using Unity.Entities;
 using UnityEngine;
 
 
@@ -22,6 +18,22 @@ using UnityEngine;
 /// 向きの違いで参考にするのがX座標かｙ座標かを変える
 /// 
 /// アクティブにするのは次のセグメントと前のセグメント
+/// 
+/// 問題点
+/// 
+/// 一つのセグメントが複数のセグメントとつながってたりマップとセグメント両方に繋がってたりする問題がある
+/// 2dゲームだととくにね
+/// どうしようかなこれ…
+/// トリガーごとに番号をつけて通過したトリガーの先のセグメントを起動？
+/// あるいは1セグメントに起動対象が一つ、とできるように工夫する？　無理だろ。三つとか分かれ道があるかも
+/// 
+/// 本番のゲームでは通路を利用する
+/// 通路上で次のマップでのポインターに位置情報更新
+/// そしてセグメント起動までやる
+/// 
+/// 
+/// 
+
 /// 
 /// </summary>
 public class SegmentTrigger : MonoBehaviour
@@ -87,14 +99,11 @@ public class SegmentTrigger : MonoBehaviour
     /// </summary>
     bool isReverse;
 
-    /// <summary>
-    /// 今距離待ちをしてるかどうか
-    /// </summary>
-    bool isWait;
 
-    CancellationTokenSource cts = new CancellationTokenSource();
 
-    Transform Player;
+    CancellationTokenSource cts;
+
+
 
 
     [Header("次のマップへの入り口かどうか")]
@@ -118,8 +127,6 @@ public class SegmentTrigger : MonoBehaviour
     Vector2Int mapPointer;
 
 
-
-
     /// <summary>
     /// トリガーになる位置を示すオブジェクト
     /// それがなければ自分の位置をね
@@ -128,18 +135,18 @@ public class SegmentTrigger : MonoBehaviour
     [Header("トリガーになる位置はどこ")]
     GameObject trigger;
 
+
     
     // Start is called before the first frame update
     void Awake()
     {
+
         //自分の他にトリガーがあるならそれを使おうね
         Transform position = trigger != null ? trigger.transform : this.transform;
 
         //自分の座標の上下座標を参考にするか決める。縦侵入ルートならｙ座標、横侵入ルートならｘ座標
         myPosition = direction == PassDirection.RightToLeft || direction == PassDirection.LeftToRight ? position.position.x : position.position.y;
 
-        //プレイヤーのトランスフォーム
-        Player = ScoreManager.instance.Player.transform;
 
     }
 
@@ -153,14 +160,8 @@ public class SegmentTrigger : MonoBehaviour
     private void OnEnable()
     {
 
-
-        if (this.gameObject.name == "SecondMapSegment0")
-        {
-            Debug.Log("しぬ");
-        }
-
         //拠点間のファストトリップとかした時はその拠点、かがり火的なもんにセグメント起動させるか
-
+        cts = new CancellationTokenSource();
 
         //リバース判定は距離判定より前のセグメントがあるかどうかが良くない？
         //初回起動時とそれ以外で分けるか
@@ -168,28 +169,29 @@ public class SegmentTrigger : MonoBehaviour
         //初回起動時なら
         if (!LevelManager.instance.isFirst)
         {
-            Debug.Log($"hhhh{isReverse}{LevelManager.instance.isFirst}");
+            //isReverseは要はトリガーの先にいるか
             //directionが2以上なら縦になるんだよね
-            float judgePosition = (int)direction < 2 ? Player.position.x : Player.position.y;
+            float judgePosition = (int)direction < 2 ? ScoreManager.instance.PlayerPosi.x : ScoreManager.instance.PlayerPosi.y;
             if (direction == PassDirection.LeftToRight || direction == PassDirection.DownToUp)
             {
+                Debug.Log($"あああ{myPosition}{judgePosition}");
                 isReverse = myPosition < judgePosition;
             }
             else
             {
+                Debug.Log($"あｓｓｓｓ{myPosition}");
                 isReverse = myPosition > judgePosition;
             }
-         Debug.Log($"だだだ{isReverse}{LevelManager.instance.isFirst}");
+     //    Debug.Log($"だだだ{isReverse}{LevelManager.instance.isFirst}");
             //初回起動フラグを消す
             LevelManager.instance.isFirst = true;
 
-            Debug.Log($"dedede{isReverse}{LevelManager.instance.isFirst}");
+       //     Debug.Log($"dedede{isReverse}{LevelManager.instance.isFirst}");
             //初回起動フラグ消したうえで、次か前のセグメント起動
 
             if (!FinalSegment)
             {
 
-                Debug.Log($"だggg{isReverse}{LevelManager.instance.isFirst}");
                 if (isReverse)
                 {
                     nextSegment.SetActive(true);
@@ -201,18 +203,20 @@ public class SegmentTrigger : MonoBehaviour
             }
             else
             {
-                Debug.Log("あddsdssss");
 
+                Debug.Log($"だggg{isReverse}{LevelManager.instance.isFirst}");
                 //最初のセグメントで、リバースでなく前に進もうとしてるなら次のセグメントを
                 //リバースなら前のマップを
                 if (prevSegment == null)
                 {
-                    if (!isReverse)
+                    if (isReverse)
                     {
+                        Debug.Log("fロー");
                         nextSegment.SetActive(true);
                     }
                     else
                     {
+                        Debug.Log("はロー");
                         LevelManager.instance.LoadLevel(nextMapSegment).Forget();
                     }
                 }
@@ -220,13 +224,13 @@ public class SegmentTrigger : MonoBehaviour
                 //リバースじゃないなら次ののマップを
                 else
                 {
-                    if (isReverse)
-                    {
+                    if (!isReverse)
+                    {                        Debug.Log("あいいい");
                         prevSegment.SetActive(true);
                     }
                     else
                     {
-                        Debug.Log("あいいい");
+
                         LevelManager.instance.LoadLevel(nextMapSegment).Forget();
                     }
                 }
@@ -242,9 +246,13 @@ public class SegmentTrigger : MonoBehaviour
             if (FinalSegment)
             {
                 //最初のセグメントなら、次のセグメントがあるならリバースだよね（だって次から来たってことだもん）
-                if (mapPointer.y == 0)
+                //これ最初とか最後はやはり前のセグメントがあるか、次のセグメントがあるかで分けた方がよくね
+
+                //前のセグメントがないのは最初のとこだよん
+                if (prevSegment == null)
                 {
                     isReverse = nextSegment.activeSelf;
+
                 }
 
                 //最後のセグメントなら、前のセグメントがないならリバースだね。次のマップから来たってことだし
@@ -252,6 +260,7 @@ public class SegmentTrigger : MonoBehaviour
                 {
 
                     isReverse = !prevSegment.activeSelf;
+
                 }
             }
             //そうじゃないなら次のセグメントがあるならリバース。次から来たってことだし
@@ -272,57 +281,17 @@ public class SegmentTrigger : MonoBehaviour
     private void OnDisable()
     {
         //待ってる時はキャンセルする
-        if (isWait)
-        {
-            isWait = false;
-            cts.Cancel();
 
-        }
-        isPassed = false;
+        cts.Cancel();
+            isPassed = false;
+        
+
 
     }
 
 
 
-    /// <summary>
-    /// Exitにするのはトリガーに入ってから方向転換して前のセグメントに戻っていくようなのを想定して
-    /// っていうかシスターさんのワープとか利用してトリガーせずに通り抜けたらどうするの？
-    /// やっぱり距離でなんとかトリガーする方法考えた方がいい？
-    /// いやでも距離だと不安定になるから、トリガーを奇数回くぐった後だけX座標、Y座標チェックをする感じにする？
-    /// 
-    /// 出た後どっち側にいるかも大事だな
-    /// </summary>
-    /// <param name="collision"></param>
-    private void OnTriggerExit2D(Collider2D collision)
-    {
-        if (collision.tag == "Player")
-        {
-            if (!ExitCheck())
-            {
-                return;
-            }
 
-            //通過してないなら即座にレベル起動
-            if (!isPassed)
-            {
-                SetLevel();
-            }
-            //そうじゃないなら距離待ち開始
-            //あと既に距離待ち中なら解除する
-            else
-            {
-                //距離待ち中なら終わらせる
-                if (isWait)
-                {
-                    isWait = false;
-                    cts.Cancel();
-                    return;
-                }
-                
-                WaitDistance().Forget();
-            }
-        }
-    }
 
     /// <summary>
     /// こいつを最初に呼ぶことで判定できる
@@ -331,9 +300,35 @@ public class SegmentTrigger : MonoBehaviour
     /// <returns></returns>
     async UniTaskVoid  TriggerStart()
     {
-        isWait = true;
+
+
+
+
         //距離をクリアするまで待って
+
         await UniTask.WaitUntil(() => TriggerCheck(), cancellationToken: cts.Token);
+        /*        try
+        {
+            await UniTask.WaitUntil(() => TriggerCheck(), cancellationToken: cts.Token);
+
+        }
+
+
+        catch (Exception e)
+        {
+
+            if (unnti)
+            {
+                Debug.Log($"des{e.Message}");
+            }
+            return;
+        }
+
+        */
+
+
+        //ctsの使いまわしはカンベンな
+
 
 
         //レベル展開
@@ -346,7 +341,7 @@ public class SegmentTrigger : MonoBehaviour
 
 
 
-
+    //距離とか
     #region 状況判断関連
 
     /// <summary>
@@ -363,7 +358,7 @@ public class SegmentTrigger : MonoBehaviour
         isNormal = isReverse ? !isNormal : isNormal;
 
         //directionが2以上なら縦になるんだよね
-        float judgePosition = (int)direction < 2 ? Player.position.x : Player.position.y;
+        float judgePosition = (int)direction < 2 ? ScoreManager.instance.PlayerPosi.x : ScoreManager.instance.PlayerPosi.y;
 
         //反転してるなら色々と変わってくる
         if (isNormal)
@@ -409,7 +404,7 @@ public class SegmentTrigger : MonoBehaviour
         isNext = isReverse ? !isNext : isNext;
 
         //directionが2以上なら縦になるんだよね
-        float judgePosition = (int)direction < 2 ? Player.position.x : Player.position.y;
+        float judgePosition = (int)direction < 2 ? ScoreManager.instance.PlayerPosi.x : ScoreManager.instance.PlayerPosi.y;
 
 
         //100圏内でトリガー起動するから、100圏外で起動するようにしないと連続で壊れる
@@ -450,27 +445,51 @@ public class SegmentTrigger : MonoBehaviour
     /// <returns></returns>
     bool TriggerCheck()
     {
-        //番号でロック欠けるのまずいな
-        //この先で番号変形してるわけだし
-        //番号の誤差が一ついないってことにしようか
-      //  Debug.Log($"距離{(myPosition - ((int)direction < 2 ? Player.position.x : Player.position.y)) < 100} 番号{LevelManager.instance.GetSegment() == mapPointer.y}");
-        //現在のセグメントじゃないのなら引っ込んでね
-        if (Mathf.Abs(LevelManager.instance.GetSegment() - mapPointer.y) > 1)
+
+
+        // 出入口セグメントじゃないならポイントチェック
+        if (!FinalSegment)
         {
-            return false;
+
+            //番号でロック欠けるのまずいな
+            //この先で番号変形してるわけだし
+            //番号の誤差が一ついないってことにしようか
+            //  Debug.Log($"距離{(myPosition - ((int)direction < 2 ? ScoreManager.instance.PlayerPosi.x : ScoreManager.instance.PlayerPosi.y)) < 100} 番号{LevelManager.instance.GetSegment() == mapPointer.y}");
+            //現在のセグメントじゃないのなら引っ込んでね
+            if (Mathf.Abs(LevelManager.instance.GetSegment() - mapPointer.y) > 1)
+            {
+
+
+
+                return false;
+            }
         }
+        else
+        {
+
+            //でもこれ前のマップにいる時にこれのトリガー踏んじゃうといろいろ誤作動起きそう
+            //情報更新は通路で行うべき
+
+            //現在のセグメント情報が前にいたマップのままでないならなら
+            if(mapPointer.x == LevelManager.instance.GetSegment(true))
+            {
+
+                //セグメント情報更新されてるかを確認
+                if (Mathf.Abs(LevelManager.instance.GetSegment() - mapPointer.y) > 1)
+                {
+
+                    Debug.Log("ぺいたー");
+                    return false;
+                }
+            }
+        }
+
 
         //directionが2以上なら縦になるんだよね
-        float judgePosition = (int)direction < 2 ? Player.position.x : Player.position.y;
+        float judgePosition = (int)direction < 2 ? ScoreManager.instance.PlayerPosi.x : ScoreManager.instance.PlayerPosi.y;
 
 
-        if (mapPointer.y == 1)
-        {
-        if (Mathf.Abs(myPosition - judgePosition) < 100)
-        {
-            Debug.Log($"距離到達{mapPointer.y}");
-        }
-        }
+
 
 
 
@@ -493,13 +512,9 @@ public class SegmentTrigger : MonoBehaviour
     /// <returns></returns>
     async UniTaskVoid WaitDistance()
     {
-        isWait = true;
+
         //距離をクリアするまで待って
         await UniTask.WaitUntil(() => DistanceCheck(), cancellationToken: cts.Token);
-        if (mapPointer.y == 1)
-        {
-        Debug.Log($"dis距離到達{mapPointer.y}");
-        }
 
 
         //レベル展開
@@ -525,6 +540,8 @@ public class SegmentTrigger : MonoBehaviour
     /// </summary>
     void SetLevel()
     {
+
+
         //isReverseなら通過前に前のレベルを呼び、通過後（二回目の通過）に次のレベルを置く
         //ふつうは一回目通過で次、二回目で前
 
@@ -535,7 +552,7 @@ public class SegmentTrigger : MonoBehaviour
 
         if (mapPointer.y == 1)
         {
-            Debug.Log($"逆？{isReverse}通過済み？{isPassed}");
+          //  Debug.Log($"逆？{isReverse}通過済み？{isPassed}");
         }
         //トリガー通ったら今のセグメントを現在位置にする
         LevelManager.instance.DataUpdate(mapPointer);
@@ -617,6 +634,10 @@ public class SegmentTrigger : MonoBehaviour
                 }
                 if (prevSegment != null && prevSegment.activeSelf)
                 {
+                    if (isPassed)
+                    {
+                        Debug.Log($"aaaaaa{prevSegment.name}");
+                    }
                     prevSegment.SetActive(false);
                 }
 
@@ -625,6 +646,7 @@ public class SegmentTrigger : MonoBehaviour
             {
                 if (prevSegment != null)
                 {
+
                     prevSegment.SetActive(true);
                 }
                 if (nextSegment != null && nextSegment.activeSelf)
@@ -636,7 +658,63 @@ public class SegmentTrigger : MonoBehaviour
         }
     }
 
+
+    /// <summary>
+    /// リスポーン時のセグメントを起動する
+    /// どーせ書き変えるんで左右等の距離トリガーには対応してませんまだね
+    /// </summary>
+    public void RespornSegment()
+    {
+
+        //いや、トリガーより下で前のマップ、セグメントが
+        //それより上で次のセグメント、マップが出てくるからロードはいらないわ
+        //レベルマネージャーにセグメント探してきてもらうか
+
+
+
+        //自分より下なら前のセグメントの初期位置へ
+        if (ScoreManager.instance.PlayerPosi.y < transform.position.y)
+        {
+            //最初のセグメントなら（まぁほんとのマップだとゼロ以外でも繋がってるからだめだよね）
+            //ほんとならファイナルセグメントで前のセグメントないか、そして前なら繋がってるマップの位置を
+            //今のポインターからレべマネに教えてもらう
+            //そしてnextMapSegmentで隣接してるセグメント番号をyに入れるか
+            //nextMapSegmentにもう全部入れてよくね、マップ番号とセグメント
+            if(FinalSegment && prevSegment == null)
+            {
+
+               Vector2Int rePointer = new Vector2Int(mapPointer.x-1,nextMapSegment);
+                float posi = LevelManager.instance.SegmentSerch(rePointer).transform.position.y + 10;
+                ScoreManager.instance.Player.transform.position = new Vector3(0, posi, 0);
+            }
+            else
+            {
+                ScoreManager.instance.Player.transform.position = new Vector3(0,prevSegment.transform.position.y + 10,0);
+            }
+        }
+
+        //それ以外なら次のセグメントより上か下かで判断
+        else
+        {
+
+            //今のセグメントにいるなら今のセグメントの最初に
+            if((FinalSegment && nextSegment == null) || ScoreManager.instance.PlayerPosi.y < nextSegment.transform.position.y)
+            {
+                //これはセグメントやマップのロードいらない、そのまま今の一番下に座標だけ変える
+                ScoreManager.instance.Player.transform.position = new Vector3(0, transform.position.y + 10, 0);
+            }
+            //次のセグメントにいるなら次のセグメントの最初に
+            else
+            {
+                //これはセグメントやマップのロードいらない、そのまま次に座標だけ変える
+                ScoreManager.instance.Player.transform.position = new Vector3(0, nextSegment.transform.position.y + 10, 0);
+            }
+        }
+    }
+
+
     #endregion
+
 
 
 }

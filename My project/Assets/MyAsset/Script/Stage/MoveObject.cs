@@ -1,6 +1,7 @@
 using Cysharp.Threading.Tasks;
 using System;
 using System.Collections.Generic;
+using System.Threading;
 using UnityEngine;
 
 
@@ -116,10 +117,17 @@ public class MoveObject : MonoBehaviour
             //到達タイミングで待つよ
             if (waitSeconds > 0)
             {
-                isStop = true;
-                await UniTask.Delay(TimeSpan.FromSeconds(waitSeconds));
-                isStop = false;
-
+                try
+                {
+                    isStop = true;
+                    rb.velocity = Vector2.zero;
+                    await UniTask.Delay(TimeSpan.FromSeconds(waitSeconds), cancellationToken: destroyCancellationToken);
+                    isStop = false;
+                }
+                catch
+                {
+                    return;
+                }
             }
 
             if (_isForward)
@@ -165,10 +173,17 @@ public class MoveObject : MonoBehaviour
             //到達タイミングで待つよ
             if (waitSeconds > 0)
             {
-                isStop = true;
-                rb.velocity = Vector2.zero;
-                await UniTask.Delay(TimeSpan.FromSeconds(waitSeconds));
-                isStop = false;
+                try
+                {
+                    isStop = true;
+                    rb.velocity = Vector2.zero;
+                    await UniTask.Delay(TimeSpan.FromSeconds(waitSeconds), cancellationToken: destroyCancellationToken);
+                    isStop = false;
+                }
+                catch
+                {
+                    return;
+                }
 
             }
             if (_isForward)
@@ -198,11 +213,19 @@ public class MoveObject : MonoBehaviour
             //到達タイミングで待つよ
             if (waitSeconds > 0)
             {
-                isStop = true;
-                await UniTask.Delay(TimeSpan.FromSeconds(waitSeconds));
-                isStop = false;
-
+                try
+                {
+                    isStop = true;
+                    await UniTask.Delay(TimeSpan.FromSeconds(waitSeconds), cancellationToken: destroyCancellationToken);
+                    isStop = false;
+                }
+                catch
+                {
+                    return;
+                }
             }
+
+          
 
             //最後についたかコネクトしてなくて最初に戻ったか
             if (currentTarget == _movePoints.Count - 1 || (currentTarget == 0 && !isConnect))
@@ -259,9 +282,18 @@ public class MoveObject : MonoBehaviour
             //到達タイミングで待つよ
             if (waitSeconds > 0)
             {
-                isStop = true;
-                await UniTask.Delay(TimeSpan.FromSeconds(waitSeconds));
-                isStop = false;
+                try
+                {
+                    isStop = true;
+                    await UniTask.Delay(TimeSpan.FromSeconds(waitSeconds), cancellationToken: destroyCancellationToken);
+                    isStop = false;
+                }
+                catch
+                {
+                    return;
+                }
+
+
 
             }
 

@@ -3,6 +3,9 @@ using System.Collections;
 using System.Collections.Generic;
 using TNRD;
 using UnityEngine;
+using static Destructible2D.D2dSplitter;
+using UnityEngine.SocialPlatforms.Impl;
+using static CharacterController;
 
 /// <summary>
 ///　セーブするときにスクリプトから情報を吸い出す
@@ -54,28 +57,14 @@ public class SaveManager : MonoBehaviour
 
         }
 
-        //レベルマネージャーのセーブも
+        //ロードがタイミング違うので配列にまとめない
         LevelManager.instance.Save();
+        
         return true;
     }
 
 
-    /// <summary>
-    /// UIのイベントでも呼べるみょん
-    /// </summary>
-    IEnumerator<bool> SaveA()
-    {
-        int count = _useList.Length;
-        for (int i = 0; i < count; i++)
-        {
-            _useList[i].Save();
-            yield return false;
-        }
-        yield return false;
-        //レベルマネージャーのセーブも
-        LevelManager.instance.Save();
-        yield return true;
-    }
+
 
 
     /// <summary>
@@ -130,6 +119,28 @@ public class SaveManager : MonoBehaviour
         //からのセーブ
         //Save();
         Debug.Log($"ssセーブ完了{Time.unscaledTime - s}");
+    }
+
+
+
+    public void ClearSave()
+    {
+        //スコアマネージャーの初期化
+
+        ES3.Save<int>("PlayTime", 0);
+        ES3.Save<int>("Score", 0);
+        ES3.Save<int>("Life", 5);
+        Debug.Log($"べｓｔ{ScoreManager.instance.BestScore}");
+        ES3.Save<int>("BestScore", ScoreManager.instance.BestScore);
+
+        //  キャラコントローラーの初期化
+        ES3.Save("NowCondition", new List<EventObject.EventData>());
+        ES3.Save("NowEffect", new GimickCondition());
+        ES3.Save("PositionImfo", Vector3.zero);
+
+
+
+        LevelManager.instance.NewSave(true);
     }
 
 }

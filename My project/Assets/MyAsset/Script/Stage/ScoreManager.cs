@@ -3,8 +3,16 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using TMPro;
+using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.PlayerLoop;
 using UnityEngine.UI;
+
+using Com.LuisPedroFonseca.ProCamera2D;
+using UnityEngine.Playables;
+using Cysharp.Threading.Tasks;
+using DarkTonic.MasterAudio;
+
 
 /// <summary>
 /// スコアとタイムの管理
@@ -31,6 +39,13 @@ public class ScoreManager : SaveMono
     /// </summary>
     int Score;
 
+    int bestScore;
+
+    public int BestScore
+    {
+        get { return bestScore; }
+    }
+
     public GameObject Player;
     #endregion
 
@@ -49,31 +64,13 @@ public class ScoreManager : SaveMono
     int life;
 
 
-
+    public bool isDie;
     #endregion
 
 
     #region チェックポイント関連
 
 
-
-    /// <summary>
-    /// チェックポイント到達時に使用
-    /// やり直し時に使う
-    /// </summary>
-    int memoryLife;
-
-    /// <summary>
-    /// チェックポイント到達時に使用
-    /// やり直し時に使う
-    /// </summary>
-    int memoryScore;
-
-    /// <summary>
-    /// チェックポイント到達時に使用
-    /// やり直し時に使う
-    /// </summary>
-    int memoryTime;
 
     /// <summary>
     /// マップ切り替え時にレベルマネージャーに請求する
@@ -99,6 +96,23 @@ public class ScoreManager : SaveMono
 
     int lastTime;
 
+
+    [SerializeField]
+    TextMeshProUGUI finalScore;
+
+    [SerializeField]
+    TextMeshProUGUI bounus;
+
+    [SerializeField]
+    TextMeshProUGUI summury;
+
+    /// <summary>
+    /// スコア発表窓
+    /// </summary>
+    [SerializeField]
+    GameObject ScoreDip;
+
+
     /// <summary>
     /// UIのアニメーション
     /// </summary>
@@ -108,6 +122,17 @@ public class ScoreManager : SaveMono
 
     #endregion
 
+    [SerializeReference]
+    ProCamera2D _camera;
+
+
+    [SerializeField]
+    GameObject home;
+
+    [SerializeField]
+    GameObject newRecord;
+
+    int timeBounus;
 
     #region
 
@@ -143,6 +168,13 @@ public class ScoreManager : SaveMono
     #endregion
 
 
+    public Vector2 PlayerPosi;
+
+    public bool isGoal;
+
+    [SerializeField]
+    PlayableDirector ending;
+
 
     private void Awake()
     {
@@ -155,6 +187,7 @@ public class ScoreManager : SaveMono
         {
             Destroy(this.gameObject);
         }
+        PlayerPosi = Player.transform.position;
     }
 
 
@@ -169,9 +202,15 @@ public class ScoreManager : SaveMono
         AllUpdate();
     }
 
+    private void LateUpdate()
+    {
+        PlayerPosi = Player.transform.position;
+    }
+
     // Update is called once per frame
     void Update()
     {
+
         if (inGame)
         {
             //プレイ中は時間を加算
@@ -186,8 +225,100 @@ public class ScoreManager : SaveMono
 
     #region スコアとタイム関連
 
+
+   
+
+    /// <summary>
+    /// スコア表示
+    /// </summary>
+    public async void ScoreDisplay()
+    {
+        //スコア表示
+        ScoreDip.SetActive(true);
+
+        timeBounus = (1000 - (lastTime * 2)) * 10;
+        timeBounus = timeBounus < 0 ? 0:timeBounus;
+        await Display(Score, finalScore,false);
+
+        await Display(timeBounus,bounus,false);
+
+        await Display(timeBounus+Score,summury,true);
+
+                Debug.Log($"まえ{bestScore}"); 
+        //ここからベスト記録超えてるかとか、クリックしたらもどれるようにとか
+        if(Score+timeBounus > bestScore)
+        {
+   
+            bestScore = timeBounus + Score;
+            Debug.Log($"あと{bestScore}");
+            newRecord.SetActive(true);
+            PlaySound("NewRecord");
+            
+        }
+           EndGame().Forget();
+    }
+
+    async UniTask Display(int target,TextMeshProUGUI targetUI,bool total, int nowNum = 0)
+    {
+        if (nowNum == 0)
+        {
+            if (target > 40)
+            {
+                targetUI.text = "0";
+            }
+            else
+            {
+                if (total)
+                {
+                    PlaySound("TotalOpen");
+                }
+                else
+                {
+                    PlaySound("ScoreOpen");
+                }
+                targetUI.text = target.ToString();
+                return;
+            }
+            await UniTask.Delay(TimeSpan.FromSeconds(0.8f));
+            PlaySound("ScoreEffect");
+        }
+        else
+        {
+            await UniTask.Delay(TimeSpan.FromSeconds(0.05f));
+        }
+        nowNum = nowNum + (target / 40) <= target ? nowNum + (target / 40) : target;
+
+        targetUI.text =  nowNum.ToString();
+
+        if (nowNum != target)
+        {
+            await Display(target,targetUI,total,nowNum);
+        }
+        else
+        {
+            StopSound("ScoreEffect");
+            if (total)
+            {
+                PlaySound("TotalOpen");
+            }
+            else
+            {
+                PlaySound("ScoreOpen");
+            }
+        }
+    }
+
+
+    async UniTaskVoid EndGame()
+    {
+        await UniTask.WaitUntil(() => Input.GetMouseButtonDown(0),cancellationToken: destroyCancellationToken);
+        GetComponent<UIManager>().ClearSave();
+    }
+
+
     public void ScoreChange(int change)
     {
+        Debug.Log($"あｓｄｆｆ{change}");
         if (Score + change < 0)
         {
             Score = 0;
@@ -251,32 +382,66 @@ public class ScoreManager : SaveMono
         {
             life = 99;
         }
-        if (life > 0)
+        else if (life < 0)
         {
-            lifeViewer.text = life.ToString();
+            life = 0;
         }
-
-        return life < 0;
+     lifeViewer.text = life.ToString();
+        return life == 0;
     }
 
 
     /// <summary>
     /// 死亡イベント
     /// やり直し時にスコア消費
+    /// 最後にセーブしたところからやり直し
+    /// ダメージでスコア減ってるから死のスコア減少いらない
+    /// いや、ひとつ前のセグメントに戻すか
     /// </summary>
-    public void Die()
+    public async UniTaskVoid Die()
     {
-
-        Score = Score - 500 < 0 ? 0 : Score - 500;
+        isDie = true;
+        Score = Score - 1100 < 0 ? 0 : Score - 1100;
         life = maxLife;
 
+        //ここでレベルマネージャーでひとつ前のセグメント…というか今のセグメントの一番下１０あたりに戻る
+        //一瞬暗転させるか
+        LevelManager.instance.Resporn();
+
         AllUpdate();
+
+        await Player.GetComponent<CharacterController>().DieRecover();
+        isDie = false;
+        Debug.Log("ああああ");
     }
 
-    public void Reset()
+
+
+    /// <summary>
+    /// カメラをエンディング仕様にしてイベントシーン開始
+    /// </summary>
+    public void EndingStart()
     {
-        Score -= memoryScore;
+        inGame = false;
+        ending.Play();
+        _camera.AdjustCameraTargetInfluence(_camera.GetCameraTarget(Player.transform), 0, 0, 0f);
+        _camera.AdjustCameraTargetInfluence(_camera.GetCameraTarget(home.transform),0,1,0.05f);
+        EndingWait().Forget();
     }
+
+    /// <summary>
+    /// タイムライン終わったらスコア表示するぞ
+    /// </summary>
+    /// <returns></returns>
+    public async UniTaskVoid EndingWait()
+    {        
+        Debug.Log("エフェクト");
+        await UniTask.WaitUntil(() => ending.time >= ending.duration,cancellationToken: destroyCancellationToken);
+        ScoreDisplay();
+
+    }
+
+
 
     #endregion
 
@@ -284,41 +449,47 @@ public class ScoreManager : SaveMono
 
 
 
-    #region チェックポイント関連
 
     /// <summary>
-    /// 再挑戦
+    /// 音声再生。音源に追随しない
+    /// 普通は再生する音声と
     /// </summary>
-    void ReTry(bool isDie)
+    /// <param name="sType">再生する音の名前。バリエーションありのやつ。
+    /// <param name="sourcePosition">音を鳴らしたい位置。必須です。 </param>
+    /// <param name="volumePercentage"><b>Optional</b> - 音量を下げて再生したい場合に使用します（0～1の間）。
+    /// <param name="pitch"><b>Optional</b> - 特定のピッチで音を再生したい場合に使用します。</param> <param name="pitch"><b>Optional</b> - 特定の音程で再生したい場合に使用します。そうすると、バリエーションの中のpichとrandom pitchを上書きします。
+    /// <param name="delaySoundTime"><b>Optional</b> - すぐにではなく、X秒後に音を鳴らしたい場合に使用します。
+    /// <param name="variationName"><b>Optional</b> - 特定のバリエーション（またはクリップID）の名前で再生したい場合に使用します。それ以外の場合は、ランダムなバリエーションが再生されます。
+    /// <param name="timeToSchedulePlay"><b>Optional</b> - サウンドを再生するためのDSP時間を渡すために使用します。通常はこれを使用せず、代わりにdelaySoundTimeパラメータを使用します。
+    /// <param name="isRemember"><b>Optional</b> - PlaySoundResultを取得するかどうか。
+    /// <returns>PlaySoundResult - このオブジェクトは、サウンドが再生されたかどうかを読み取るために使用され、使用されたVariationオブジェクトへのアクセスも可能です。
+
+    public void PlaySound(string sType, float volumePercentage = 1f, float? pitch = null, float delaySoundTime = 0f, string variationName = null, double? timeToSchedulePlay = null, bool isRemember = false)
     {
-        if (!isDie)
+        // Debug.Log("ｄｄｄ");
+        if (isRemember)
         {
-            Score = memoryScore;
-            playTime = memoryTime;
+            MasterAudio.PlaySound3DAtVector3(sType, PlayerPosi, volumePercentage, pitch, delaySoundTime, variationName, timeToSchedulePlay);
+        }
+        else
+        {
+            MasterAudio.PlaySound3DAtVector3AndForget(sType, PlayerPosi, volumePercentage, pitch, delaySoundTime, variationName, timeToSchedulePlay);
+
         }
 
-        life = memoryLife;
-        AllUpdate();
-
-        //ここから暗転処理
-
     }
-
-
     /// <summary>
-    /// チェックポイント到達
+    /// 最後のtrueにしないならフェードが基本
     /// </summary>
-    void ReachPoint(int reach)
+    /// <param name="soundGroupName"></param>
+    /// <param name="fadeTime"></param>
+    /// <param name="isStop"></param>
+    public void StopSound(string soundGroupName)
     {
-        memoryScore = Score;
-        memoryTime = lastTime;
-        memoryLife = life;
+
+            MasterAudio.StopAllOfSound(soundGroupName);
 
     }
-
-    #endregion
-
-
 
     /// <summary>
     /// セーブ機能
@@ -327,14 +498,11 @@ public class ScoreManager : SaveMono
     public override void Save()
     {
         //今の状態と使用エフェクトと今の位置を格納
-        ES3.Save("PlayTime", playTime);
-        ES3.Save("Score", Score);
+        ES3.Save<int>("PlayTime", lastTime);
+        ES3.Save<int>("Score", Score);
         ES3.Save("Life", life);
 
-        //記録用、やり直しに使う
-        ES3.Save("MScore", memoryScore);
-        ES3.Save("MLife", memoryLife);
-        ES3.Save("MTime", memoryTime);
+
 
         //ロード時に必要な処置はスコアやらのUIへの反映とメモリーの復帰だけ
     }
@@ -342,14 +510,14 @@ public class ScoreManager : SaveMono
 
     public override void Load()
     {
-        playTime = ES3.Load<float>("PlayTime");
+        lastTime = ES3.Load<int>("PlayTime");
+        playTime = lastTime;
         Score = ES3.Load<int>("Score");
          life = ES3.Load<int>("Life");
 
-        //記録用、やり直しに使う
-        memoryScore = ES3.Load<int>("MScore");
-        memoryLife = ES3.Load<int>("MLife");
-        memoryTime = ES3.Load<int>("MTime");
+
+        bestScore = ES3.Load<int>("BestScore",0);
+
         AllUpdate();
     }
 

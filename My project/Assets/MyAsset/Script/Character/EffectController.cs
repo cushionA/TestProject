@@ -1,12 +1,15 @@
+using Cysharp.Threading.Tasks;
 using DarkTonic.MasterAudio;
 using PathologicalGames;
 using RenownedGames.Apex.Serialization.Collections.Generic;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Threading;
 using UnityEngine;
 using UnityEngine.AddressableAssets;
 using UnityEngine.ResourceManagement.AsyncOperations;
+using static ScoreManager;
 
 /// <summary>
 /// 必要なのはエフェクトとサウンドを呼び出すための物
@@ -169,6 +172,11 @@ public class EffectController : MonoBehaviour
     #endregion
 
 
+    /// <summary>
+    /// 最後のアニメのため
+    /// </summary>
+    GameObject sprite;
+
     private void Start()
     {
         anim = GetComponent<Animator>();
@@ -177,7 +185,7 @@ public class EffectController : MonoBehaviour
         nowCondition.num = (int)CharacterController.CharacterCondition.none;
         nowBuff.num = (int)CharacterController.ExtraCondition.none;
 
-       
+        sprite = transform.Find("SatoruSprite").gameObject; 
  
     }
 
@@ -186,6 +194,7 @@ public class EffectController : MonoBehaviour
         //死ぬ
         if(nowCondition.num == 3)
         {
+            
             conditionChange = true;
             animeNum = 15;
             waitAnime = "Die";
@@ -219,7 +228,7 @@ public class EffectController : MonoBehaviour
                 //死なら処理を分ける
                 if (animeNum == 15)
                 {
-                    ScoreManager.instance.Die();
+                    ScoreManager.instance.Die().Forget();
                 }
                 else
                 {
@@ -315,7 +324,7 @@ public class EffectController : MonoBehaviour
                 else
                 {
                     MySpawn(Particles[StateSound[number]], StateEffect);
-                    PlaySound(StateSound[number], transform.position);
+                    PlaySound(StateSound[number], ScoreManager.instance.PlayerPosi);
                     nowState.ef = null;
 
 
@@ -372,7 +381,7 @@ public class EffectController : MonoBehaviour
             {
 
                     MySpawn(Particles[StateSound[number]], StateEffect);
-                    PlaySound(StateSound[number], transform.position);
+                    PlaySound(StateSound[number], ScoreManager.instance.PlayerPosi);
                     nowCondition.ef = null;
 
             }
@@ -438,7 +447,7 @@ public class EffectController : MonoBehaviour
             {
 
                 //nowBuff.ef = MySpawn(Particles[ExtraSound[number]],  ExtraEffect).transform;
-                PlaySound(ExtraSound[number], transform.position);
+                PlaySound(ExtraSound[number], ScoreManager.instance.PlayerPosi);
                 
 
             }
@@ -573,17 +582,17 @@ public class EffectController : MonoBehaviour
         //ダメージなら
         if (nowCondition.num == 0)
         {
-            PlaySound("Damage",transform.position);
+            PlaySound("Damage",ScoreManager.instance.PlayerPosi);
         }
         else if (nowCondition.num == 3)
         {
             if (index == 0)
             {
-                PlaySound("Damage",transform.position);
+                PlaySound("Damage",ScoreManager.instance.PlayerPosi);
             }
             else
             {
-                PlaySound("Die", transform.position);
+                PlaySound("Die", ScoreManager.instance.PlayerPosi);
             }
 
            
@@ -642,8 +651,37 @@ public class EffectController : MonoBehaviour
 
     }
 
+    /// <summary>
+    /// 最後のアニメ開始
+    /// </summary>
+    public void EndAnimStart()
+    {
+        anim.SetBool("End", true);
+
+        ScoreManager.instance.EndingStart();
+    }
+
+    /// <summary>
+    /// 最後のアニメが終わるのを待つ
+    /// </summary>
+    /// <returns></returns>
+    public async UniTaskVoid EndAnimWait()
+    {
+
+        await UniTask.WaitUntil(() => CheckEnd("Goal"), cancellationToken: destroyCancellationToken);
+
+        //アニメ終わったらスコア表示
+        ScoreManager.instance.ScoreDisplay();
+
+    }
+
+
     #endregion
 
 
 
+
+    #region
+
+    #endregion
 }

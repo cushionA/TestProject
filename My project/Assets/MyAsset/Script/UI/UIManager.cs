@@ -1,3 +1,4 @@
+using Beautify.Universal;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -39,6 +40,7 @@ public class UIManager : MonoBehaviour
     void Update()
     {
 
+
         UIButton = Input.GetButtonDown("Menu");
 
         if(isMenu)
@@ -62,6 +64,10 @@ public class UIManager : MonoBehaviour
         }
         else if (UIButton)
         {
+            if (ScoreManager.instance.isDie || ScoreManager.instance.isGoal)
+            {
+                return;
+            }
 
             MenuWindow.SetActive(true);
             Time.timeScale = 0;
@@ -95,13 +101,31 @@ public class UIManager : MonoBehaviour
     public async void SaveAct()
     {
         await _save.SaveAsync();
-
+        BeautifySettings.settings.blurIntensity.value = 0f;
         SceneManager.UnloadSceneAsync(LevelManager.instance.nowData.mapName);
      //   Resources.UnloadUnusedAssets();
         bl_SceneLoaderManager.LoadScene("Title");
         LevelManager.instance.NewInstance();
     }
 
+    public void ClearSave()
+    {
+       _save.ClearSave();
+
+        SceneManager.UnloadSceneAsync(LevelManager.instance.nowData.mapName);
+        //   Resources.UnloadUnusedAssets();
+        bl_SceneLoaderManager.LoadScene("Title");
+        LevelManager.instance.NewInstance();
+    }
+
+    /// <summary>
+    /// ÉZÅ[ÉuÇπÇ∏Ç…Ç®ÇÌÇÈ
+    /// </summary>
+    public void NotSaveEnd()
+    {
+        BeautifySettings.settings.blurIntensity.value = 0f;
+        bl_SceneLoaderManager.LoadScene("Title");
+    }
 
 
 
