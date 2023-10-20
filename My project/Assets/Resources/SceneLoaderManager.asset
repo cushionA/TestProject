@@ -34,6 +34,24 @@ MonoBehaviour:
     FakeLoadingTime: 7
     Backgrounds:
     - {fileID: 21300000, guid: 0370f88ed5a50a7448a224a5dc8fe66a, type: 3}
+  - SceneName: FirstMap
+    SceneAsset: {fileID: 102900000, guid: c94d1ce9aa0bd8b469cc90758c4a06af, type: 3}
+    DisplayName: FirstMap
+    Description: 
+    SkipType: 3
+    withChild: 0
+    LoadingType: 0
+    FakeLoadingTime: 2
+    Backgrounds: []
+  - SceneName: SecondMap
+    SceneAsset: {fileID: 102900000, guid: 8a35a7562f1383142aaee1ad0b321712, type: 3}
+    DisplayName: SecondMap
+    Description: 
+    SkipType: 3
+    withChild: 0
+    LoadingType: 0
+    FakeLoadingTime: 2
+    Backgrounds: []
   tipsList:
   - "\u30AF\u30EA\u30C3\u30AF\u3057\u3066\u98DB\u3093\u3067\u30E9\u30D4\u30E5\u30BF\u3092\u76EE\u6307\u305B"
   buildSettingsAsFallback: 1

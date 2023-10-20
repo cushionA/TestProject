@@ -1,4 +1,5 @@
 using Cysharp.Threading.Tasks;
+using DG.Tweening;
 using System.Collections;
 using System.Collections.Generic;
 using TMPro;
@@ -16,7 +17,7 @@ public class Title : MonoBehaviour
     private void Start()
     {
         int num = ES3.Load<int>("BestScore", 0);
-        Debug.Log($"‚·‚±‚ {num}");
+
         tx.text = num.ToString();
     }
 
@@ -35,7 +36,7 @@ public class Title : MonoBehaviour
 
     public void DeleteData()
     {
-        ES3.DeleteFile("SaveFile.es3");
+        ES3.DeleteFile("Users/tatuk/AppData/LocalLow/DefaultCompany/My project/SaveFile.es3");
     }
 
 

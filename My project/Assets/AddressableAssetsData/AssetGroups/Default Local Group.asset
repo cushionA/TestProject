@@ -33,7 +33,7 @@ MonoBehaviour:
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: ee09fc7109216a0459f3b0999b67728b
-    m_Address: ButoonMove
+    m_Address: ButoonMove.wav
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
@@ -48,17 +48,17 @@ MonoBehaviour:
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 7ed050fd65fc2c4428f282aa3c61e452
-    m_Address: Reflect
+    m_Address: Reflect.wav
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 6ed29162af782554a97cfae35ed8fb62
-    m_Address: CancelMenu
+    m_Address: CancelMenu.wav
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 3eab33884b12c61448a7ff8811d81a2f
-    m_Address: JumpUp
+    m_Address: JumpUp.wav
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
@@ -83,7 +83,7 @@ MonoBehaviour:
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 5d6fe0b39de36f44596faefda0a1416b
-    m_Address: JumpStop
+    m_Address: JumpStop.wav
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
@@ -93,12 +93,12 @@ MonoBehaviour:
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 4d3090fa470463949906dee71472013b
-    m_Address: ScoreEffect
+    m_Address: ScoreEffect.wav
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 3df0da19e092e144582171ffe2ad2c38
-    m_Address: Open
+    m_Address: Open.wav
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
@@ -123,7 +123,7 @@ MonoBehaviour:
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 3c0d298712ef7e0418b4b2362f722c4c
-    m_Address: Recover
+    m_Address: Recover.wav
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
@@ -153,7 +153,7 @@ MonoBehaviour:
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: faa217aeef617154fb861c05035097d7
-    m_Address: "\u30E9\u30CE\u30D9POP 1 SDF 3.asset"
+    m_Address: LightFont4
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
@@ -193,7 +193,7 @@ MonoBehaviour:
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 1975d40a842deb743bccce3f6d0d70e5
-    m_Address: BadSight
+    m_Address: BadSight.wav
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
@@ -203,12 +203,12 @@ MonoBehaviour:
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: a87b42382fe13d2489324830f7f3c9be
-    m_Address: Damage
+    m_Address: Damage.wav
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: a8c790afe48ec2d4284a7431825070dc
-    m_Address: Die
+    m_Address: Die.wav
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
@@ -223,17 +223,17 @@ MonoBehaviour:
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: e750dfd945e699448aaa253f025ee7d1
-    m_Address: Fall
+    m_Address: Fall.wav
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 371124e1927763547925858a11976c2b
-    m_Address: "\u30E9\u30CE\u30D9POP 1 SDF 1"
+    m_Address: LightFont2
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: e6b1a3fd55de41b4f9091fd137263830
-    m_Address: JumpSound
+    m_Address: JumpSound.wav
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
@@ -258,17 +258,17 @@ MonoBehaviour:
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 469d4d677c41b784cbee3279719fdfc2
-    m_Address: "\u30E9\u30CE\u30D9POP.ttf"
+    m_Address: LightPop
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 36c884ccfd108a04f9d8ba9db1e632b5
-    m_Address: Shot1
+    m_Address: Shot1.wav
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: e5190ba4ab3615c40b5c05dd6bc755b1
-    m_Address: ScoreOpen
+    m_Address: ScoreOpen.wav
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
@@ -278,7 +278,7 @@ MonoBehaviour:
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 850e570e8489162409fc9908d350292d
-    m_Address: TotalOpen
+    m_Address: TotalOpen.wav
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
@@ -308,7 +308,7 @@ MonoBehaviour:
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 642fe252a7e39974682346741d0df056
-    m_Address: Clear
+    m_Address: Clear.wav
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
@@ -323,7 +323,7 @@ MonoBehaviour:
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 44f75200950a1a845baab7d87ee03999
-    m_Address: Incivle
+    m_Address: Incivle.wav
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
@@ -398,17 +398,17 @@ MonoBehaviour:
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 626001c7236c53d48ab37f67c4283bb6
-    m_Address: ScoreUp
+    m_Address: ScoreUp.wav
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 4280f3c26b0fec04aba092bed3c9614b
-    m_Address: ScoreUp
+    m_Address: ScoreUp.wav
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: a16f3e88db25d2341b54eea27d9df701
-    m_Address: NewRecord
+    m_Address: NewRecord.wav
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
@@ -418,7 +418,7 @@ MonoBehaviour:
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 21c39ed42fd144344a0aa63559c78ef8
-    m_Address: "\u30E9\u30CE\u30D9POP 1 SDF.asset"
+    m_Address: LightFont1
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
@@ -438,7 +438,7 @@ MonoBehaviour:
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: b01f537fe8db2da42bd9a189fa938a0e
-    m_Address: "\u30E9\u30CE\u30D9POP 1.ttf"
+    m_Address: Light
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
@@ -448,12 +448,12 @@ MonoBehaviour:
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 50abebc062da0ef45a80bdabd8f04994
-    m_Address: "\u30E9\u30CE\u30D9POP 1 SDF 2"
+    m_Address: LightFont3
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 30ecd32621e21da46829b0a216c79c8d
-    m_Address: LevelManager.prefab
+    m_Address: LevelManager
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
@@ -478,27 +478,72 @@ MonoBehaviour:
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 1b62cf18bd8effd449e667f64e0c8cc4
-    m_Address: Assets/AllIn1SpriteShader/2DRenderer_URP/PipelineSetup/AllIn12DRendererUrpAsset.asset
+    m_Address: AllIn12DRendererUrpAsset
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: bb4305d8e284ab94abb0fc3478415e62
-    m_Address: Assets/AllIn1SpriteShader/2DRenderer_URP/PipelineSetup/AllIn12DRenderer.asset
+    m_Address: AllIn12DRenderer
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 7b4db59a4707fb94798062d8d3480986
-    m_Address: Assets/Loading Screen/Content/Prefabs/LoaderCanvas/SceneLoaderCanvas.prefab
+    m_Address: SceneLoaderCanvas
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 8bbb8f37a2a5ee749bca4ef1bd15f50b
-    m_Address: Assets/Loading Screen/Content/Prefabs/SceneLoaders/SceneLoader 7.prefab
+    m_Address: SceneLoader 7
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 98f9eb5a7dab9364facc8a58192cdd87
     m_Address: JumpStop 1.wav
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 5bbd71911f8df9a4faf6d1cea146d920
+    m_Address: Light SDF
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 5fc0b0faeb50a5449a6eb444e1b80af7
+    m_Address: Light SDF 1
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: b0314fc5c906f83488c4c1f014ffd4c5
+    m_Address: rapyutaShadow
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 63d753c7177bc484fba974d30717fa69
+    m_Address: UIDescription
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 1b68f201ed8d38144a79b56ca6affc43
+    m_Address: ResultUI
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: b8663543833c05341aa8b72dabcf21f7
+    m_Address: SaveUI2
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: b7eb5949bb2bd46488c43360da4e2741
+    m_Address: SaveUI1
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: d224897d078638742a32a4ee3203d5aa
+    m_Address: Save
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: c210b1fdd1d605a47b7593a2c4fceba8
+    m_Address: ButtonBase
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0

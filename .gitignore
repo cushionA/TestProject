@@ -156,3 +156,10 @@ Wind VFX.meta
 Melee Weapons Pack 1.meta
 RenownedGames.meta
 Rotary Heart/Shared.meta
+*.ahbuildinfo
+My project/ProjectSettings/BurstAotSettings_WebGL.json
+*.dll
+*.exe
+My project/Assets/AddressableAssetsData/WebGL.meta
+My project/Assets/AddressableAssetsData/WebGL
+GamePlayFile

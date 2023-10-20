@@ -108,6 +108,7 @@
 0x0b64ee5dab9fd471 -     821043118167020657 - UnityEditor.UIElements.StyleSheets.ThemeStyleSheetImporter
 0x0b764b4b4a5aaa53 -     825930368411150931 - UnityEditor.Tilemaps.TilemapEditorToolPreferences
 0x0b8e2ea0e9c1b560 -     832654249761551712 - UnityEditor.PlaceTreeWizard
+0x0bc74fe3e254c9bc -     848734894956005820 - DescriptionUI
 0x0bed9aa13f4b4417 -     859513121239942167 - UnityEngine.UI.GraphicRaycaster
 0x0bf1f2b1339de044 -     860735846693593156 - Cysharp.Threading.Tasks.Triggers.AsyncScrollTrigger
 0x0bf487b7867cf03e -     861462651039707198 - Cysharp.Threading.Tasks.Triggers.AsyncPointerEnterTrigger
@@ -841,6 +842,7 @@
 0x566c433a3951d55d -    6227426302095381853 - Unity.VisualScripting.UnityOnSubmitMessageListener
 0x56887c67fc7bd060 -    6235370470153900128 - UnityEngine.Rendering.Universal.Tonemapping
 0x5699e63f3307cfb4 -    6240271917812010932 - UnityEditor.AddressableAssets.GUI.HostingServicesAddServiceWindow
+0x569b8c8fd97dc27c -    6240736258109063804 - UnityEditor.WebGL.HttpServerEditorWrapper
 0x56acc3205c59bac3 -    6245581327011789507 - Unity.Scenes.Editor.GameObjectSceneMetaDataImporter
 0x56c2f388f9798fbc -    6251827002370265020 - Unity.PlasticSCM.Editor.Views.ConfirmContinueWithPendingChangesDialog
 0x56d22d718c7f8d91 -    6256112798082764177 - RenownedGames.DevTool.UIElements.CommandTemplateVector2
@@ -1117,6 +1119,7 @@
 0x72d848f83c656678 -    8275444546295654008 - Cysharp.Threading.Tasks.Triggers.AsyncEnableTrigger
 0x732b0874d46b25bb -    8298736036233291195 - Parallax
 0x733694708149dc6d -    8301986174030437485 - Unity.Entities.RetainBlobAssets
+0x743a2f2ac2991a8d -    8375058317748804237 - UnityEditor.WebGL.WebsockifyEditorWrapper
 0x7445d1005c5b05b0 -    8378332481272350128 - Unity.VisualScripting.UnityOnCollisionStay2DMessageListener
 0x7457e1cd77aaa5ca -    8383417503965685194 - RenderGraphViewer
 0x747912c70d005ea5 -    8392760026707549861 - UnityEditor.Toolbar
@@ -1454,6 +1457,7 @@
 0x9527adcbb87d1252 -   10747750126228148818 - UnityEditor.SpeedTreeImporterInspector
 0x9545f75a91e3ee9c -   10756275253411049116 - Destructible2D.Examples.D2dBackground
 0x9550ef62e685a200 -   10759362717841465856 - UnityEditor.Rendering.Universal.UniversalGlobalSettingsEditor
+0x95667968258af5b4 -   10765425447489172916 - MyButton
 0x958c19fda2058e38 -   10776016585526447672 - UnityEditor.Search.ASIEI01
 0x95aec8033fa70d86 -   10785778073877286278 - UnityEditor.Tilemaps.DefaultAssetCreation+CreateAssetEndNameEditAction
 0x95af00b2561b1011 -   10785840398524420113 - UnityEditor.Modules.DefaultBuildProperties
@@ -1983,6 +1987,7 @@
 0xca11e6df83860965 -   14560672917924219237 - Dreamteck.Forever.Editor.CustomPathGeneratorEditor
 0xca51b2fbd5643f18 -   14578630263461658392 - RenownedGames.ApexEditor.ApexSettingsEditor
 0xca52d6e27884a247 -   14578951211924628039 - UnityEngine.Rendering.Universal.ScreenSpaceAmbientOcclusion
+0xca5a06110045ef5b -   14580973413654196059 - DontDestroy
 0xca6cace815db9305 -   14586223405945295621 - MyScroll
 0xca6d76cc0ec0b400 -   14586445386915820544 - UnityEngine.AdaptivePerformance.AdaptivePerformanceManager
 0xcaa04facd5105db9 -   14600757595662736825 - HeurekaGames.AssetHunterPRO.AH_BuildInfoManager
@@ -2063,6 +2068,7 @@
 0xd2ba2d4f2762c699 -   15184498911619499673 - UnityEngine.WheelCollider
 0xd2ff0b1a868801b8 -   15203883075580199352 - UnityEngine.Joint2D
 0xd3004ff94b05d2c5 -   15204240274126918341 - ES3Defaults
+0xd318b0d7705aa156 -   15211102180793295190 - UnityEditor.WebGL.WebGLStrippingInfo
 0xd35f0e61021b744a -   15230908274600277066 - DestroyParticleAtEnd
 0xd37fe4797be3dafb -   15240150874465753851 - UnityEditor.ShortcutManagement.ConflictResolverWindow
 0xd3884af33464dbb3 -   15242515347251977139 - UnityEngine.Rendering.UI.DebugUIHandlerIntField

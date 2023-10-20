@@ -1,4 +1,5 @@
 using Beautify.Universal;
+using DarkTonic.MasterAudio;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -58,6 +59,7 @@ public class UIManager : MonoBehaviour
             {
                 if (Input.GetButton("Cancel"))
                 {
+                    MasterAudio.PlaySound("CancelMenu");
                     SaveWindowCancel();
                 }
             }
